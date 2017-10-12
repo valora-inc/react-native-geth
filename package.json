@@ -1,0 +1,49 @@
+{
+	"name": "react-native-geth",
+	"version": "0.0.2",
+	"main": "index",
+	"scripts": {
+		"test": "jest"
+	},
+	"dependencies": {
+		"react": "16.0.0-beta.5",
+		"react-native": "0.49.3"
+	},
+	"devDependencies": {
+		"babel-jest": "21.2.0",
+		"babel-preset-react-native": "4.0.0",
+		"jest": "21.2.1",
+		"react-test-renderer": "16.0.0-beta.5"
+	},
+	"jest": {
+		"preset": "react-native"
+	},
+	"rnpm": {
+		"android": {
+			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
+			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
+			"packageInstance": "new RNGethPackage()"
+		},
+		"commands": {
+			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
+		}
+	},
+	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
+	"license": "MIT",
+	"keywords": [
+		"Geth",
+		"Go",
+		"ethereum",
+		"react",
+		"react-native",
+		"android"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/YsnKsy/react-native-geth.git"
+	},
+	"bugs": {
+		"url": "https://github.com/YsnKsy/react-native-geth/issues"
+	},
+	"homepage": "https://github.com/YsnKsy/react-native-geth"
+}
