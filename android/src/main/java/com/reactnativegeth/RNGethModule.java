@@ -153,9 +153,13 @@ public class RNGethModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startNode(Promise promise) {
+        Boolean result = false;
         try {
-            this.getNode().start();
-            promise.resolve(true);
+            if(node != null) {
+                this.getNode().start();
+                result = true;
+            }
+            promise.resolve(result);
         } catch (Exception e) {
             promise.reject(START_NODE_ERROR, e);
         }
@@ -163,9 +167,13 @@ public class RNGethModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopNode(Promise promise) {
+        Boolean result = false;
         try {
-            this.getNode().stop();
-            promise.resolve(true);
+            if(this.node != null) {
+                this.getNode().stop();
+                result = true;
+            }
+            promise.resolve(result);
         } catch (Exception e) {
             promise.reject(STOP_NODE_ERROR, e);
         }
