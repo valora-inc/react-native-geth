@@ -22,8 +22,8 @@
 		"android": {
 			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
 			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
-			"packageImportPath": "import com.reactnativegeth.RNGethModule;",
-			"packageInstance": "new RNGethPackage()"
+			"packageInstance": "new RNGethPackage()",
+ 			"sourceDir": "./android"
 		},
 		"commands": {
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
