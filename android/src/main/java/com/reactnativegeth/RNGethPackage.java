@@ -29,6 +29,7 @@ public class RNGethPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
 
+        RNGethModule.init();
         modules.add(new RNGethModule(reactContext));
 
         return modules;
