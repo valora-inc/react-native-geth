@@ -4,6 +4,12 @@ React Native Geth is released under the [MIT license](https://raw.githubusercont
 
 ## Description
 
+RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple. It supports Android platforms.
+
+## Supported platforms
+
+-   Android
+
 ## Initial Setup
 
 ```shell
