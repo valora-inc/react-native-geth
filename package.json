@@ -1,6 +1,6 @@
 {
 	"name": "react-native-geth",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"main": "index",
 	"scripts": {
 		"test": "jest"
@@ -21,8 +21,7 @@
 	"rnpm": {
 		"android": {
 			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
-			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
-			"packageImportPath": "import com.reactnativegeth.RNGethModule;",
+			"packageImportPath": "import com.reactnativegeth.RNGethPackage;\nimport com.reactnativegeth.RNGethModule;",
 			"packageInstance": "new RNGethPackage()",
  			"sourceDir": "./android"
 		},
