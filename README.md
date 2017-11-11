@@ -11,23 +11,6 @@ $ npm i react-native-geth --save
 
 $ react-native link react-native-geth
 ```
-### Android Installation
-
-The Geth module need to be initialized. In the MainApplication.java file, add the following:
-
-```java
-...
-  @Override
-  public void onCreate() {
-    super.onCreate();
-
-    // Initialise Geth module
-    RNGethModule.init(); //  <= add this line
-
-    SoLoader.init(this, /* native exopackage */ false);
-  }
-...
-```
 
 ## JavaScript Usage ( private ethereum network )
 
