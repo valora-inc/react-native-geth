@@ -43,7 +43,7 @@ const config = {
   "chainID": chainID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
   "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
   "genesis": genesis, // genesis.json file
-  "nodeDir": ".private-ethereum-", // --datadir / Data directory for the databases and keystore
+  "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
   "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
   "enodes": "enode://8c544b4a07da02a9ee024def6f3ba24b2747272b64e16ec5dd6b17b55992f8980b77938155169d9d33807e501729ecb42f5c0a61018898c32799ced152e9f0d7@9[::]:30301" // --bootnodes / Comma separated enode URLs for P2P discovery bootstrap
 };
@@ -56,6 +56,9 @@ async function Ethereum() {
   if (init) {
     // Start node
     const start = await Geth.startNode();
+    
+
+    const stop = await Geth.stopNode();
   }
 }
 
