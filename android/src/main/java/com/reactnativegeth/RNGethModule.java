@@ -5,6 +5,7 @@ package com.reactnativegeth;
  */
 
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -13,21 +14,27 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.ethereum.geth.Account;
 import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
+import org.ethereum.geth.SyncProgress;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.KeyStore;
 import org.ethereum.geth.Node;
 import org.ethereum.geth.NodeConfig;
+import org.ethereum.geth.NewHeadHandler;
+import org.ethereum.geth.Header;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+
+import android.util.Log;
 
 
 public class RNGethModule extends ReactContextBaseJavaModule {
@@ -39,6 +46,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String NEW_ACCOUNT_ERROR = "NEW_ACCOUNT_ERROR";
     private static final String SET_ACCOUNT_ERROR = "SET_ACCOUNT_ERROR";
     private static final String GET_ACCOUNT_ERROR = "GET_ACCOUNT_ERROR";
+    private static final String SYNC_PROGRESS_ERROR = "SYNC_PROGRESS_ERROR";
+    private static final String SUBSCRIBE_NEW_HEAD_ERROR = "SUBSCRIBE_NEW_HEAD_ERROR";
     private static final String UPDATE_ACCOUNT_ERROR = "UPDATE_ACCOUNT_ERROR";
     private static final String DELETE_ACCOUNT_ERROR = "DELETE_ACCOUNT_ERROR";
     private static final String EXPORT_KEY_ERROR = "EXPORT_ACCOUNT_KEY_ERROR";
@@ -53,9 +62,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static NodeConfig ndConfig;
     private Account account;
     private KeyStore keyStore;
+    private ReactApplicationContext reactContext;
 
     public RNGethModule(ReactApplicationContext reactContext) {
         super(reactContext);
+
+        this.reactContext = reactContext;
     }
 
     @Override
@@ -239,6 +251,86 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         }
     }
 
+    // Return sync progress
+    @ReactMethod
+    public void getSyncProgress(Promise promise) {
+        try {
+            Account acc = this.getAccount();
+            if (acc != null) {
+                Context ctx = new Context();
+                SyncProgress sp = this.getNode().getEthereumClient().syncProgress(ctx);
+
+                if (sp != null) {
+                    WritableMap syncProgress = new WritableNativeMap();
+                    syncProgress.putDouble("startingBlock", sp.getStartingBlock());
+                    syncProgress.putDouble("currentBlock", sp.getCurrentBlock());
+                    syncProgress.putDouble("highestBlock", sp.getHighestBlock());
+
+                    promise.resolve(syncProgress);
+                    return;
+                }
+
+                // Syncing has either not starter, or has already stopped.
+                promise.resolve(null);
+            } else {
+                promise.reject(SYNC_PROGRESS_ERROR, "call method setAccount() before");
+            }
+        } catch (Exception e) {
+            promise.reject(SYNC_PROGRESS_ERROR, e);
+        }
+    }
+
+    // Start emitting GethNewHead events.
+    @ReactMethod
+    public void subscribeNewHead(Promise promise) {
+        try {
+            Account acc = this.getAccount();
+            if (acc != null) {
+                NewHeadHandler handler = new NewHeadHandler() {
+                    @Override public void onError(String error) {
+                        Log.e("GETH", "Error emitting new head event: " + error);
+                    }
+                    @Override public void onNewHead(final Header header) {
+                        WritableMap headerMap = new WritableNativeMap();
+                        WritableArray extraArray = new WritableNativeArray();
+
+                        for (byte extraByte: header.getExtra()) {
+                          extraArray.pushInt(extraByte);
+                        }
+
+                        headerMap.putString("parentHash", header.getParentHash().getHex());
+                        headerMap.putString("uncleHash", header.getUncleHash().getHex());
+                        headerMap.putString("coinbase", header.getCoinbase().getHex());
+                        headerMap.putString("root", header.getRoot().getHex());
+                        headerMap.putString("TxHash", header.getTxHash().getHex());
+                        headerMap.putString("receiptHash", header.getReceiptHash().getHex());
+                        headerMap.putString("bloom", header.getBloom().getHex());
+                        headerMap.putDouble("difficulty", (double) header.getDifficulty().getInt64());
+                        headerMap.putDouble("number", (double) header.getNumber());
+                        headerMap.putDouble("gasLimit", (double) header.getGasLimit());
+                        headerMap.putDouble("gasUsed", (double) header.getGasUsed());
+                        headerMap.putDouble("time", (double) header.getTime());
+                        headerMap.putString("mixDigest", header.getMixDigest().getHex());
+                        headerMap.putString("nounce", header.getNonce().getHex());
+                        headerMap.putString("hash", header.getHash().getHex());
+                        headerMap.putArray("extra", extraArray);
+
+                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            .emit("GethNewHead", headerMap);
+                    }
+                };
+
+                Context ctx = new Context();
+                this.getNode().getEthereumClient().subscribeNewHead(ctx, handler, 16);
+                promise.resolve(true);
+            } else {
+                promise.reject(SUBSCRIBE_NEW_HEAD_ERROR, "call method setAccount() before");
+            }
+        } catch (Exception e) {
+            promise.reject(SUBSCRIBE_NEW_HEAD_ERROR, e);
+        }
+    }
+    
     // Update the passphrase of current account
     @ReactMethod
     public void updateAccount(String oldPassword, String newPassword, Promise promise) {

@@ -5,9 +5,9 @@
 	"scripts": {
 		"test": "jest"
 	},
-	"dependencies": {
-		"react": "16.0.0-beta.5",
-		"react-native": "0.49.3"
+	"peerDependencies": {
+		"react": "*",
+		"react-native": "*"
 	},
 	"devDependencies": {
 		"babel-jest": "21.2.0",
@@ -23,7 +23,7 @@
 			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
 			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
 			"packageInstance": "new RNGethPackage()",
- 			"sourceDir": "./android"
+			"sourceDir": "./android"
 		},
 		"commands": {
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
