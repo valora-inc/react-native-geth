@@ -421,7 +421,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void createAndSendTransaction(String passphrase, String toAddress, double amount, double gasLimit, 
-        double gasPrice, Promise promise) {
+        double gasPrice, String data, Promise promise) {
 
         try {
             KeyStore ks = this.getKeyStore();
@@ -437,7 +437,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 new BigInt((long) amount), 
                 new BigInt((long) gasLimit), 
                 new BigInt((long) gasPrice), 
-                null);
+                data.getBytes("UTF8"));
 
             // Sign a transaction with a single authorization
             Transaction signed = ks.signTxPassphrase(acc, passphrase, tx, chain);
