@@ -28,6 +28,7 @@ import org.ethereum.geth.Node;
 import org.ethereum.geth.NodeConfig;
 import org.ethereum.geth.NewHeadHandler;
 import org.ethereum.geth.Header;
+import org.ethereum.geth.Transaction;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -53,6 +54,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String EXPORT_KEY_ERROR = "EXPORT_ACCOUNT_KEY_ERROR";
     private static final String IMPORT_KEY_ERROR = "IMPORT_ACCOUNT_KEY_ERROR";
     private static final String GET_ACCOUNTS_ERROR = "GET_ACCOUNTS_ERROR";
+    private static final String NEW_TRANSACTION_ERROR = "NEW_TRANSACTION_ERROR";
+    private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
     private static final String STATIC_NODES_FILES_PATH = "/" + ETH_DIR + "/GethDroid/";
@@ -416,6 +419,49 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void createAndSendTransaction(String passphrase, String toAddress, double amount, double gasLimit, 
+        double gasPrice, Promise promise) {
+
+        try {
+            KeyStore ks = this.getKeyStore();
+            Account acc = this.getAccount();
+            Address fromAddress = acc.getAddress();
+            BigInt chain = new BigInt(ndConfig.getEthereumNetworkID());
+            Context ctx = new Context();
+            long nonce = this.getNode().getEthereumClient().getPendingNonceAt(ctx, fromAddress);
+
+            Transaction tx = new Transaction(
+                nonce, 
+                new Address(toAddress),
+                new BigInt((long) amount), 
+                new BigInt((long) gasLimit), 
+                new BigInt((long) gasPrice), 
+                null);
+
+            // Sign a transaction with a single authorization
+            Transaction signed = ks.signTxPassphrase(acc, passphrase, tx, chain);
+
+            // Send it out to the network.
+            this.getNode().getEthereumClient().sendTransaction(ctx, signed);
+
+            promise.resolve(tx.toString());
+        } catch (Exception e) {
+            promise.reject(NEW_TRANSACTION_ERROR, e);
+        }
+    }
+
+    @ReactMethod
+    public void suggestGasPrice(Promise promise) {
+        try {
+            Context ctx = new Context();
+            long gasPrice = this.getNode().getEthereumClient().suggestGasPrice(ctx).getInt64();
+            promise.resolve((double) gasPrice);
+
+        } catch (Exception e) {
+            promise.reject(SUGGEST_GAS_PRICE_ERROR, e);
+        }
+    }
 }
 
     /*
