@@ -1,23 +1,23 @@
 {
 	"name": "react-native-geth",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"main": "index",
 	"scripts": {
 		"test": "jest"
 	},
-	"peerDependencies": {
-		"react": "*",
-		"react-native": "*"
-	},
-	"devDependencies": {
-		"babel-jest": "21.2.0",
-		"babel-preset-react-native": "4.0.0",
-		"jest": "21.2.1",
-		"react-test-renderer": "16.0.0-beta.5"
-	},
-	"jest": {
-		"preset": "react-native"
-	},
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "babel-jest": "21.2.0",
+    "babel-preset-react-native": "4.0.0",
+    "jest": "21.2.1",
+    "react-test-renderer": "16.0.0-beta.5"
+  },
+  "jest": {
+    "preset": "react-native"
+  },
 	"rnpm": {
 		"android": {
 			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
