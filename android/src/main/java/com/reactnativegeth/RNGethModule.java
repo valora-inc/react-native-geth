@@ -47,6 +47,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String EXPORT_KEY_ERROR = "EXPORT_ACCOUNT_KEY_ERROR";
     private static final String IMPORT_KEY_ERROR = "IMPORT_ACCOUNT_KEY_ERROR";
     private static final String GET_ACCOUNTS_ERROR = "GET_ACCOUNTS_ERROR";
+    private static final String GET_NONCE_ERROR = "GET_NONCE_ERROR";
     private static final String NEW_TRANSACTION_ERROR = "NEW_TRANSACTION_ERROR";
     private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
     private static final String ETH_DIR = ".ethereum";
@@ -422,6 +423,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Create and send transaction.
      *
      * @param passphrase Passphrase
+     * @param nonce      Account nonce (use -1 to use last known nonce)
      * @param toAddress  Address destination
      * @param amount     Amount
      * @param gasLimit   Gas limit
@@ -431,21 +433,25 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return Return String transaction
      */
     @ReactMethod
-    public void createAndSendTransaction(String passphrase, String toAddress, double amount,
-                                         double gasLimit, double gasPrice, String data,
-                                         Promise promise) {
+    public void createAndSendTransaction(String passphrase, double nonce, String toAddress, 
+                                         double amount, double gasLimit, double gasPrice, 
+                                         String data, Promise promise) {
         try {
             Account acc = GethHolder.getAccount();
             Address fromAddress = acc.getAddress();
             BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
             Context ctx = new Context();
-            long nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, fromAddress);
+
+            if (nonce == -1) {
+              nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, fromAddress);
+            }
+
             Transaction tx = new Transaction(
-                    nonce,
+                    (long) nonce, 
                     new Address(toAddress),
                     new BigInt((long) amount),
-                    new BigInt((long) gasLimit),
-                    new BigInt((long) gasPrice),
+                    new BigInt((long) gasLimit), 
+                    new BigInt((long) gasPrice), 
                     data.getBytes("UTF8"));
 
             // Sign a transaction with a single authorization
@@ -472,6 +478,22 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             promise.resolve((double) gasPrice);
         } catch (Exception e) {
             promise.reject(SUGGEST_GAS_PRICE_ERROR, e);
+        }
+    }
+
+    // Gets this account's pending nonce. This is the nonce you should use when creating a transaction.
+    // return double nonce
+    @ReactMethod
+    public void getPendingNonce(Promise promise) {
+        try {
+            Account acc = this.getAccount();
+            Context ctx = new Context();
+            Address address = acc.getAddress();
+            long nonce = this.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
+
+            promise.resolve((double) nonce);
+        } catch (Exception e) {
+            promise.reject(GET_NONCE_ERROR, e);
         }
     }
 }
