@@ -491,7 +491,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getPendingNonce(Promise promise) {
         try {
-            Account acc = this.getAccount();
+            Account acc = GethHolder.getAccount();
             Context ctx = new Context();
             Address address = acc.getAddress();
             long nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
