@@ -481,15 +481,20 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         }
     }
 
-    // Gets this account's pending nonce. This is the nonce you should use when creating a transaction.
-    // return double nonce
+    /**
+     * Retrieves this account's pending nonce. This is the nonce you should use when creating a
+     * transaction.
+     *
+     * @param promise Promise
+     * @return return Double nonce
+     */
     @ReactMethod
     public void getPendingNonce(Promise promise) {
         try {
-            Account acc = this.getAccount();
+            Account acc = GethHolder.getAccount();
             Context ctx = new Context();
             Address address = acc.getAddress();
-            long nonce = this.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
+            long nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
 
             promise.resolve((double) nonce);
         } catch (Exception e) {
