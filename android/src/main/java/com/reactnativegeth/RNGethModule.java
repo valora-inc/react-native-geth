@@ -40,6 +40,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String NEW_ACCOUNT_ERROR = "NEW_ACCOUNT_ERROR";
     private static final String SET_ACCOUNT_ERROR = "SET_ACCOUNT_ERROR";
     private static final String GET_ACCOUNT_ERROR = "GET_ACCOUNT_ERROR";
+    private static final String BALANCE_ACCOUNT_ERROR = "BALANCE_ACCOUNT_ERROR";
+    private static final String BALANCE_AT_ERROR = "BALANCE_AT_ERROR";
     private static final String SYNC_PROGRESS_ERROR = "SYNC_PROGRESS_ERROR";
     private static final String SUBSCRIBE_NEW_HEAD_ERROR = "SUBSCRIBE_NEW_HEAD_ERROR";
     private static final String UPDATE_ACCOUNT_ERROR = "UPDATE_ACCOUNT_ERROR";
@@ -218,10 +220,29 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                         .getBalanceAt(ctx, acc.getAddress(), -1);
                 promise.resolve(balance.toString());
             } else {
-                promise.reject(GET_ACCOUNT_ERROR, "call method setAccount() before");
+                promise.reject(BALANCE_ACCOUNT_ERROR, "call method setAccount() before");
             }
         } catch (Exception e) {
-            promise.reject(GET_ACCOUNT_ERROR, e);
+            promise.reject(BALANCE_ACCOUNT_ERROR, e);
+        }
+    }
+
+    /**
+     * Returns the wei balance of the specified account.
+     *
+     * @param address Address of account being looked up.
+     * @param promise Promise
+     * @return Return String balance.
+     */
+    @ReactMethod
+    public void balanceAt(String address, Promise promise) {
+        try {
+            Context ctx = new Context();
+            BigInt balance = GethHolder.getNode().getEthereumClient()
+                    .getBalanceAt(ctx, new Address(address), -1);
+            promise.resolve(balance.toString());
+        } catch (Exception e) {
+            promise.reject(BALANCE_AT_ERROR, e);
         }
     }
 

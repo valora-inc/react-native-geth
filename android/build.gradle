@@ -31,5 +31,5 @@ repositories {
 
 dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
-    compile 'org.ethereum:geth:1.7.1'
+    compile 'org.ethereum:geth:1.7.3'
 }

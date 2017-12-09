@@ -3,8 +3,8 @@ const path = require('path');
 
 const appBuildGradlePath = path.join('android', 'app', 'build.gradle');
 
-const defaultCompileStatement = "compile 'org.ethereum:geth:1.7.1'";
-const requiredCompileStatement = "compile 'org.ethereum:geth:1.7.1'";
+const defaultCompileStatement = "compile 'org.ethereum:geth:1.7.3'";
+const requiredCompileStatement = "compile 'org.ethereum:geth:1.7.3'";
 
 
 // android/app/build.gradle
