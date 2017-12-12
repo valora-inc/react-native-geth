@@ -3,21 +3,32 @@
 	"version": "0.0.10",
 	"main": "index",
 	"scripts": {
-		"test": "jest"
+		"test": "eslint index.js && flow",
+		"flow:deps": "flow-typed install"
 	},
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
-  "devDependencies": {
-    "babel-jest": "21.2.0",
-    "babel-preset-react-native": "4.0.0",
-    "jest": "21.2.1",
-    "react-test-renderer": "16.0.0-beta.5"
-  },
-  "jest": {
-    "preset": "react-native"
-  },
+	"peerDependencies": {
+		"react-native": "*",
+		"react-test-renderer": "*"
+	},
+	"devDependencies": {
+		"babel-eslint": "^8.0.3",
+		"babel-jest": "^21.2.0",
+		"babel-preset-react-native": "4.0.0",
+		"eslint": "^4.13.1",
+		"eslint-config-airbnb": "^16.1.0",
+		"eslint-import-resolver-node": "^0.3.1",
+		"eslint-plugin-compat": "^2.1.0",
+		"eslint-plugin-flowtype": "^2.40.1",
+		"eslint-plugin-import": "^2.8.0",
+		"eslint-plugin-jsx-a11y": "^6.0.2",
+		"eslint-plugin-react": "^7.4.0",
+		"eslint-plugin-react-native": "^3.2.0",
+		"flow-bin": "^0.61.0",
+		"jest": "^21.2.1"
+	},
+	"jest": {
+		"preset": "react-native"
+	},
 	"rnpm": {
 		"android": {
 			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
