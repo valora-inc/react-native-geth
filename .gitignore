@@ -54,3 +54,9 @@ buck-out/
 */fastlane/report.xml
 */fastlane/Preview.html
 */fastlane/screenshots
+
+# JEST
+coverage/
+
+# Flow-Typed
+flow-typed/
