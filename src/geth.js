@@ -39,6 +39,7 @@ class Geth {
 
   constructor(config: NodeConfigType): void {
     this.config = config
+    this.nodeConfig()
   }
 
   async nodeConfig(): Promise<any> {

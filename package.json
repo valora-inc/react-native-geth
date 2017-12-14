@@ -1,14 +1,14 @@
 {
 	"name": "react-native-geth",
 	"version": "0.0.10-development",
-	"main": "src/index",
+	"main": "src/geth",
 	"scripts": {
 		"test": "eslint src && flow",
 		"flow:deps": "flow-typed install"
 	},
 	"peerDependencies": {
-		"react": "^16.2.0",
-		"react-native": "^0.51.0"
+		"react": "*",
+		"react-native": "*"
 	},
 	"devDependencies": {
 		"babel-eslint": "^8.0.3",
