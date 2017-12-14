@@ -3,8 +3,7 @@
   "plugins": [
     "react",
     "react-native",
-    "flowtype",
-    "compat"
+    "flowtype"
   ],
   "extends": [
     "airbnb",
@@ -22,20 +21,14 @@
   "rules": {
     "semi": [2, "never"],
     "no-unexpected-multiline": 2,
-    "compat/compat": 2
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
   },
   "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
     }
-  },
-  "settings": {
-      "import/resolver": {
-        "node": {
-          "extensions": [".js", ".jsx"]
-        }
-      }
   }
 }

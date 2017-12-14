@@ -60,3 +60,6 @@ coverage/
 
 # Flow-Typed
 flow-typed/
+
+# Test App
+RNGethSample/
