@@ -53,7 +53,7 @@ async function Eth() {
   const start = await geth.start(); // Start node
 
   if (start) {    
-    const stop = await Geth.stopNode();
+    const stop = await Geth.stop();
   }
 }
 
