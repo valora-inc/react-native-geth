@@ -1,26 +1,26 @@
 {
 	"name": "react-native-geth",
-	"version": "0.0.10",
-	"main": "index",
+	"version": "0.0.10-development",
+	"main": "src/geth",
 	"scripts": {
-		"test": "eslint index.js && flow",
+		"test": "eslint src && flow",
 		"flow:deps": "flow-typed install"
 	},
 	"peerDependencies": {
-		"react-native": "*",
-		"react-test-renderer": "*"
+		"react": "*",
+		"react-native": "*"
 	},
 	"devDependencies": {
 		"babel-eslint": "^8.0.3",
 		"babel-jest": "^21.2.0",
+		"babel-preset-flow": "^6.23.0",
 		"babel-preset-react-native": "4.0.0",
 		"eslint": "^4.13.1",
 		"eslint-config-airbnb": "^16.1.0",
 		"eslint-import-resolver-node": "^0.3.1",
-		"eslint-plugin-compat": "^2.1.0",
 		"eslint-plugin-flowtype": "^2.40.1",
 		"eslint-plugin-import": "^2.8.0",
-		"eslint-plugin-jsx-a11y": "^6.0.2",
+		"eslint-plugin-jsx-a11y": "^6.0.3",
 		"eslint-plugin-react": "^7.4.0",
 		"eslint-plugin-react-native": "^3.2.0",
 		"flow-bin": "^0.61.0",
@@ -43,9 +43,10 @@
 	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
 	"license": "MIT",
 	"keywords": [
-		"Geth",
-		"Go",
+		"geth",
+		"go",
 		"ethereum",
+		"eth",
 		"react",
 		"react-native",
 		"android"

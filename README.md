@@ -48,19 +48,14 @@ const config = {
   "enodes": "enode://8c544b4a07da02a9ee024def6f3ba24b2747272b64e16ec5dd6b17b55992f8980b77938155169d9d33807e501729ecb42f5c0a61018898c32799ced152e9f0d7@9[::]:30301" // --bootnodes / Comma separated enode URLs for P2P discovery bootstrap
 };
 
-async function Ethereum() {
+async function Eth() {
+  const geth = new Geth(config); // new Geth({}) for default network Ethereum
+  const start = await geth.start(); // Start node
 
-  // Configure ethereum private light client node
-  const init = await Geth.nodeConfig(config);
-
-  if (init) {
-    // Start node
-    const start = await Geth.startNode();
-    
-
+  if (start) {    
     const stop = await Geth.stopNode();
   }
 }
 
-Ethereum();
+Eth();
 ```
