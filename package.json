@@ -3,7 +3,7 @@
 	"version": "0.0.10-development",
 	"main": "src/index",
 	"scripts": {
-		"test": "eslint src && flow && jest --coverage",
+		"test": "eslint src && flow",
 		"flow:deps": "flow-typed install"
 	},
 	"peerDependencies": {
