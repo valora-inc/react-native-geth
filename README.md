@@ -1,14 +1,13 @@
 # React Native Geth
 
-React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
-
 ## Description
 
-RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple. It supports Android platforms.
+RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple. It supports both Android & iOS platforms.
 
 ## Supported platforms
 
 -   Android
+-   iOS (Need PR)
 
 ## Initial Setup
 
@@ -18,7 +17,7 @@ $ npm i react-native-geth --save
 $ react-native link react-native-geth
 ```
 
-## JavaScript Usage ( private ethereum network )
+## JavaScript Usage
 
 ```js
 import Geth from 'react-native-geth';
@@ -75,3 +74,5 @@ const PrivateEth = async () => {
 }
 
 ```
+
+React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
