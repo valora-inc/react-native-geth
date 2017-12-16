@@ -251,7 +251,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * - Break change : getSyncProgress ==> syncProgress -
      *
      * @param promise Promise
-     * @return Return object sync progress
+     * @return Return object sync progress or null
      */
     @ReactMethod
     public void syncProgress(Promise promise) {
@@ -377,7 +377,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @param creationPassphrase Passphrase
      * @param exportPassphrase   New passphrase
      * @param promise            Promise
-     * @return Return true if account deleted
+     * @return Return key string
      */
     @ReactMethod
     public void exportKey(String creationPassphrase, String exportPassphrase, Promise promise) {
@@ -454,8 +454,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return Return String transaction
      */
     @ReactMethod
-    public void createAndSendTransaction(String passphrase, double nonce, String toAddress, 
-                                         double amount, double gasLimit, double gasPrice, 
+    public void createAndSendTransaction(String passphrase, double nonce, String toAddress,
+                                         double amount, double gasLimit, double gasPrice,
                                          String data, Promise promise) {
         try {
             Account acc = GethHolder.getAccount();
@@ -468,11 +468,11 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             }
 
             Transaction tx = new Transaction(
-                    (long) nonce, 
+                    (long) nonce,
                     new Address(toAddress),
                     new BigInt((long) amount),
-                    new BigInt((long) gasLimit), 
-                    new BigInt((long) gasPrice), 
+                    new BigInt((long) gasLimit),
+                    new BigInt((long) gasPrice),
                     data.getBytes("UTF8"));
 
             // Sign a transaction with a single authorization

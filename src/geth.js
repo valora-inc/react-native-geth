@@ -1,118 +1,96 @@
 // @flow
 
 import { NativeModules } from 'react-native'
-
-type NodeConfigType = {
-  chainID: ?number,
-  maxPeers: ?number,
-  genesis: ?string,
-  nodeDir: ?string,
-  keyStoreDir: ?string,
-  enodes: ?string
-}
-
-type GethType = {
-  nodeConfig: (config: ?NodeConfigType) => Promise<any>,
-  startNode: () => Promise<any>,
-  stopNode: () => Promise<any>,
-  newAccount: (passphrase: string) => Promise<any>,
-  setAccount: (accID: number) => Promise<any>,
-  getAddress: () => Promise<any>,
-  balanceAccount: () => Promise<any>,
-  balanceAt: (address: string) => Promise<any>,
-  syncProgress: () => Promise<any>,
-  subscribeNewHead: () => Promise<any>,
-  updateAccount: (oldPassphrase: string, newPassphrase: string) => Promise<any>,
-  deleteAccount: (passphrase: string) => Promise<any>,
-  exportKey: (creationPassphrase: string, exportPassphrase: string) => Promise<any>,
-  importKey: (key: string, oldPassphrase: string, newPassphrase: string) => Promise<any>,
-  listAccounts: () => Promise<any>,
-  createAndSendTransaction: (passphrase: string, nonce: number, toAddress: string,
-    amount: number, gasLimit: number, gasPrice: number, data: string) => Promise<any>,
-  suggestGasPrice: () => Promise<any>,
-  getPendingNonce: () => Promise<any>
-}
+import type {
+  NodeConfig,
+  Account,
+  ListAccounts,
+  SyncProgress,
+  GethNativeModule
+} from './types'
 
 class Geth {
-  config: NodeConfigType
-  geth: GethType = NativeModules.Geth
+  config: ?NodeConfig
+  geth: GethNativeModule = NativeModules.Geth
 
-  constructor(config: NodeConfigType): void {
-    this.config = config
-    this.nodeConfig()
+  constructor(config: NodeConfig): void {
+    this.config = (config) ? config : {}
+    this.geth.nodeConfig(this.config)
   }
 
-  async nodeConfig(): Promise<any> {
-    return await this.geth.nodeConfig(this.config)
-  }
-
-  async start(): Promise<any> {
+  async start(): Promise<boolean> {
     return await this.geth.startNode()
   }
 
-  async stop(): Promise<any> {
+  async stop(): Promise<boolean> {
     return await this.geth.stopNode()
   }
 
-  async newAccount(passphrase: string): Promise<any> {
+  async newAccount(passphrase: string): Promise<Account> {
     return await this.geth.newAccount(passphrase)
   }
 
-  async setAccount(accID: number): Promise<any> {
+  async setAccount(
+    accID: number): Promise<boolean> {
     return await this.geth.setAccount(accID)
   }
 
-  async getAddress(): Promise<any> {
+  async getAddress(): Promise<string> {
     return await this.geth.getAddress()
   }
 
-  async balanceAccount(): Promise<any> {
+  async balanceAccount(): Promise<string> {
     return await this.geth.balanceAccount()
   }
 
-  async balanceAt(address: string): Promise<any> {
+  async balanceAt(address: string): Promise<string> {
     return await this.geth.balanceAt(address)
   }
 
-  async syncProgress(): Promise<any> {
+  async syncProgress(): Promise<SyncProgress> {
     return await this.geth.syncProgress()
   }
 
-  async subscribeNewHead(): Promise<any> {
+  async subscribeNewHead(): Promise<boolean> {
     return await this.geth.subscribeNewHead()
   }
 
-  async updateAccount(oldPassphrase: string, newPassphrase: string): Promise<any> {
+  async updateAccount(oldPassphrase: string,
+    newPassphrase: string): Promise<boolean> {
     return await this.geth.updateAccount(oldPassphrase, newPassphrase)
   }
 
-  async deleteAccount(passphrase: string): Promise<any> {
+  async deleteAccount(
+    passphrase: string): Promise<boolean> {
     return await this.geth.deleteAccount(passphrase)
   }
 
-  async exportKey(creationPassphrase: string, exportPassphrase: string): Promise<any> {
+  async exportKey(creationPassphrase: string,
+    exportPassphrase: string): Promise<string> {
     return await this.geth.exportKey(creationPassphrase, exportPassphrase)
   }
 
-  async importKey(key: string, oldPassphrase: string, newPassphrase: string): Promise<any> {
+  async importKey(key: string, oldPassphrase: string,
+    newPassphrase: string): Promise<Account> {
     return await this.geth.importKey(key, oldPassphrase, newPassphrase)
   }
 
-  async listAccounts(): Promise<any> {
+  async listAccounts(): Promise<ListAccounts> {
     return await this.geth.listAccounts()
   }
 
-  async createAndSendTransaction(passphrase: string, nonce: number, toAddress: string,
-    amount: number, gasLimit: number, gasPrice: number, data: string): Promise<any> {
-    return await this.geth.createAndSendTransaction(passphrase, nonce, toAddress,
-      amount, gasLimit, gasPrice, data)
+  async createAndSendTransaction(passphrase: string, nonce: number,
+    toAddress: string, amount: number, gasLimit: number, gasPrice: number,
+    data: string): Promise<string> {
+    return await this.geth.createAndSendTransaction(passphrase, nonce,
+      toAddress, amount, gasLimit, gasPrice, data)
   }
 
-  async suggestGasPrice(): Promise<any> {
+  async suggestGasPrice(): Promise<number> {
     return await this.geth.suggestGasPrice()
   }
 
-  async getPendingNonce(): Promise<any> {
+  async getPendingNonce(): Promise<number> {
     return await this.geth.getPendingNonce()
   }
 }
