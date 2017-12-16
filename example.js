@@ -1,46 +1,29 @@
-# React Native Geth
+// @flow
+/* eslint-disable no-console */
 
-React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
+import Geth from './src/geth'
 
-## Description
-
-RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple. It supports Android platforms.
-
-## Supported platforms
-
--   Android
-
-## Initial Setup
-
-```shell
-$ npm i react-native-geth --save
-
-$ react-native link react-native-geth
-```
-
-## JavaScript Usage ( private ethereum network )
-
-```js
-import Geth from 'react-native-geth';
-
-// Ethereum Network Frontier
+// Public Ethereum Network
 const Eth = async () => {
   const geth = new Geth()
+
   // start node
   const start = await geth.start()
 
   if (start) {
     console.log('Start :', start)
+
     // stop node
     const stop = await geth.stop()
     console.log('Stop :', stop)
   }
 }
 
-// Custom Ethereum Network
+// Private Ethereum Network
 const PrivateEth = async () => {
   // Network ID
   const chainID = 17
+
   // genesis.json
   const genesis = `{
     "config": {
@@ -64,14 +47,17 @@ const PrivateEth = async () => {
   }
 
   const geth = new Geth(config)
+
   // start node
   const start = await geth.start()
 
   if (start) {
     console.log('Start :', start)
+
     const stop = await geth.stop()
     console.log('Stop :', stop)
   }
 }
 
-```
+Eth() // run public node ethereum
+PrivateEth() // run private node ethereum

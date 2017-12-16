@@ -24,7 +24,8 @@
     "import/no-unresolved": "off",
     "import/extensions": "off",
     "react/jsx-uses-react": "error",
-    "react/jsx-uses-vars": "error"
+    "react/jsx-uses-vars": "error",
+    "flowtype/no-types-missing-file-annotation": 2
   },
   "parserOptions": {
     "ecmaFeatures": {
