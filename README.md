@@ -2,7 +2,7 @@
 
 ## Description
 
-RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple. It supports both Android & iOS platforms.
+RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple.
 
 ## Supported platforms
 
@@ -75,4 +75,186 @@ const PrivateEth = async () => {
 
 ```
 
+## Documentation :
+
+### Table of Contents
+
+-   [Geth](#geth)
+    -   [start](#start)
+    -   [stop](#stop)
+    -   [newAccount](#newaccount)
+    -   [setAccount](#setaccount)
+    -   [getAddress](#getaddress)
+    -   [balanceAccount](#balanceaccount)
+    -   [balanceAt](#balanceat)
+    -   [syncProgress](#syncprogress)
+    -   [subscribeNewHead](#subscribenewhead)
+    -   [updateAccount](#updateaccount)
+    -   [deleteAccount](#deleteaccount)
+    -   [exportKey](#exportkey)
+    -   [importKey](#importkey)
+    -   [listAccounts](#listaccounts)
+    -   [createAndSendTransaction](#createandsendtransaction)
+    -   [suggestGasPrice](#suggestgasprice)
+    -   [getPendingNonce](#getpendingnonce)
+
+## Geth
+
+Geth object
+
+**Parameters**
+
+-   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)**
+    -   `config.chainID` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
+    -   `config.maxPeers` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
+    -   `config.genesis` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+    -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+    -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+### start
+
+Start creates a live P2P node and starts running it.
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if started.
+
+### stop
+
+Terminates a running node along with all it's services.
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if stopped.
+
+### newAccount
+
+Create a new account with the specified encryption passphrase.
+
+**Parameters**
+
+-   `passphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
+
+Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** return new account object
+
+### setAccount
+
+Sets the default account at the given index in the listAccounts.
+
+**Parameters**
+
+-   `accID` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** index in the listAccounts
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if sets.
+
+### getAddress
+
+Retrieves the address associated with the current account.
+
+Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** return address..
+
+### balanceAccount
+
+Returns the wei balance of the current account.
+
+Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** return balance.
+
+### balanceAt
+
+Returns the wei balance of the specified account.
+
+**Parameters**
+
+-   `address` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Address of account being looked up.
+
+Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return balance.
+
+### syncProgress
+
+Retrieves the current progress of the sync algorithm.
+
+Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Return object sync progress or null
+
+### subscribeNewHead
+
+Subscribes to notifications about the current blockchain head
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if subscribed
+
+### updateAccount
+
+Changes the passphrase of current account.
+
+**Parameters**
+
+-   `oldPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
+-   `newPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if passphrase changed
+
+### deleteAccount
+
+Deletes the key matched by current account if the passphrase is correct.
+
+**Parameters**
+
+-   `passphrase` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if account deleted
+
+### exportKey
+
+Exports as a JSON key of current account, encrypted with new passphrase.
+
+**Parameters**
+
+-   `creationPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Old Passphrase
+-   `exportPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
+
+Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return key
+
+### importKey
+
+Stores the given encrypted JSON key into the key directory.
+
+**Parameters**
+
+-   `key` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
+-   `oldPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Old passphrase
+-   `newPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
+
+Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Return account object
+
+### listAccounts
+
+Returns all key files present in the directory.
+
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)** Return array of accounts objects
+
+### createAndSendTransaction
+
+Create and send transaction.
+
+**Parameters**
+
+-   `passphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
+-   `nonce` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Account nonce (use -1 to use last known nonce)
+-   `toAddress` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Address destination
+-   `amount` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Amount
+-   `gasLimit` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Gas limit
+-   `gasPrice` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Gas price
+-   `data` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
+
+Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return transaction
+
+### suggestGasPrice
+
+Retrieves the currently suggested gas price to allow a timely execution of a transaction.
+
+Returns **Double** Return suggested gas price
+
+### getPendingNonce
+
+Retrieves this account's pending nonce. This is the nonce you should use when creating a transaction.
+
+Returns **Double** Return nonce
+
+---
 React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
