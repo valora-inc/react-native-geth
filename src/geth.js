@@ -12,12 +12,12 @@ import type {
 /**
  * Geth object
  * @param {Object} config
- * @param {number} config.chainID
- * @param {number} config.maxPeers
- * @param {string} config.genesis
- * @param {string} config.nodeDir
- * @param {string} config.keyStoreDir
- * @param {string} config.enodes
+ * @param {number} config.chainID Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+ * @param {number} config.maxPeers Maximum number of network peers (network disabled if set to 0) (default: 25)
+ * @param {string} config.genesis genesis.json file
+ * @param {string} config.nodeDir Data directory for the databases and keystore
+ * @param {string} config.keyStoreDir Directory for the keystore (default = inside the datadir)
+ * @param {string} config.enodes Comma separated enode URLs for P2P discovery bootstrap
  */
 class Geth {
   config: ?NodeConfig

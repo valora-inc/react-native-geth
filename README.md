@@ -76,7 +76,6 @@ const PrivateEth = async () => {
 ```
 
 ## Documentation :
-
 ### Table of Contents
 
 -   [Geth](#geth)
@@ -105,12 +104,12 @@ Geth object
 **Parameters**
 
 -   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)**
-    -   `config.chainID` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
-    -   `config.maxPeers` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
-    -   `config.genesis` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-    -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-    -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+    -   `config.chainID` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+    -   `config.maxPeers` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Maximum number of network peers (network disabled if set to 0) (default: 25)
+    -   `config.genesis` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** genesis.json file
+    -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Data directory for the databases and keystore
+    -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Directory for the keystore (default = inside the datadir)
+    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs for P2P discovery bootstrap
 
 ### start
 
