@@ -7,6 +7,23 @@
 RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple.
 react-native-geth allow to build react-native dApps (Decentralized Applications) transforms your mobile device into a light client node on the Ethereum Network and enables you to easily access Ethereum’s entire ecosystem. Interacting with Smart Contracts, make payment,....
 
+#### What is react-native-geth?
+Is a React-Native module allow you to build dApps (Decentralized Applications) transforms your mobile device into a light client node on the Ethereum Network and enables you to easily access Ethereum’s entire ecosystem. Interacting with Smart Contracts, make payment,....
+
+#### What is Blockchain?
+A blockchain, originally block chain, is a continuously growing list of records, called blocks, which are linked and secured using cryptography. Each block typically contains a hash pointer as a link to a previous block, a timestamp and transaction data. By design, blockchains are inherently resistant to modification of the data. It is "an open, distributed ledger that can record transactions between two parties efficiently and in a verifiable and permanent way". For use as a distributed ledger, a blockchain is typically managed by a peer-to-peer network collectively adhering to a protocol for validating new blocks. Once recorded, the data in any given block cannot be altered retroactively without the alteration of all subsequent blocks, which requires collusion of the network majority.
+
+
+
+#### What is Ethereum?
+Ethereum is a decentralized platform that runs smart contracts, applications that run exactly as programmed without possibility of downtime, censorship, fraud or third party interference.
+
+#### What is Go Ethereum?
+[Go-Ethereum](https://github.com/ethereum/go-ethereum) is one of the three original implementations (along with C++ and Python) of the Ethereum protocol. It is written in Go
+
+#### What is Smart Contract?
+A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible.
+
 ## Supported platforms
 
 -   Android
