@@ -1,5 +1,7 @@
 # React Native Geth
 
+![Ethereum](https://geth.ethereum.org/static/images/ethereum.png)
+
 ## Description
 
 RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple.
