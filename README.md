@@ -258,4 +258,7 @@ Retrieves this account's pending nonce. This is the nonce you should use when cr
 Returns **Double** Return nonce
 
 ---
+# Press the "Watch" button to get updates. Do not forget the "Star" button 😀
+
+---
 React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
