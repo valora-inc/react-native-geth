@@ -5,7 +5,6 @@
 ## Description
 
 RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple.
-react-native-geth allow to build react-native dApps (Decentralized Applications) transforms your mobile device into a light client node on the Ethereum Network and enables you to easily access Ethereum’s entire ecosystem. Interacting with Smart Contracts, make payment,....
 
 #### What is react-native-geth?
 Is a React-Native module allow you to build dApps (Decentralized Applications) transforms your mobile device into a light client node on the Ethereum Network and enables you to easily access Ethereum’s entire ecosystem. Interacting with Smart Contracts, make payment,....
