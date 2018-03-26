@@ -471,7 +471,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                     (long) nonce,
                     new Address(toAddress),
                     new BigInt((long) amount),
-                    new BigInt((long) gasLimit),
+                    (long) gasLimit,
                     new BigInt((long) gasPrice),
                     data.getBytes("UTF8"));
 
