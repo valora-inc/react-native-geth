@@ -22,6 +22,7 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
+import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
 import org.ethereum.geth.KeyStore;
@@ -79,7 +80,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             NodeConfig nc = GethHolder.getNodeConfig();
             String nodeDir = ETH_DIR;
             String keyStoreDir = KEY_STORE_DIR;
-
             if (config.hasKey("enodes"))
                 GethHolder.writeStaticNodesFile(config.getString("enodes"));
             if (config.hasKey("chainID")) nc.setEthereumNetworkID(config.getInt("chainID"));
@@ -87,17 +87,13 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
             if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
-
             Node nd = Geth.newNode(getReactApplicationContext()
                     .getFilesDir() + "/" + nodeDir, nc);
-
             KeyStore ks = new KeyStore(getReactApplicationContext()
                     .getFilesDir() + "/" + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
-
             GethHolder.setNodeConfig(nc);
             GethHolder.setKeyStore(ks);
             GethHolder.setNode(nd);
-
             promise.resolve(true);
         } catch (Exception e) {
             promise.reject(CONFIG_NODE_ERROR, e);
@@ -239,7 +235,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             Context ctx = new Context();
             BigInt balance = GethHolder.getNode().getEthereumClient()
-                    .getBalanceAt(ctx, new Address(address), -1);
+                .getBalanceAt(ctx, new Address(address), -1);
             promise.resolve(balance.toString());
         } catch (Exception e) {
             promise.reject(BALANCE_AT_ERROR, e);
@@ -292,11 +288,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 public void onNewHead(final Header header) {
                     WritableMap headerMap = new WritableNativeMap();
                     WritableArray extraArray = new WritableNativeArray();
-
                     for (byte extraByte : header.getExtra()) {
                         extraArray.pushInt(extraByte);
                     }
-
                     headerMap.putString("parentHash", header.getParentHash().getHex());
                     headerMap.putString("uncleHash", header.getUncleHash().getHex());
                     headerMap.putString("coinbase", header.getCoinbase().getHex());
@@ -313,7 +307,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                     headerMap.putString("nounce", header.getNonce().getHex());
                     headerMap.putString("hash", header.getHash().getHex());
                     headerMap.putArray("extra", extraArray);
-                    getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    getReactApplicationContext()
+                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                             .emit("GethNewHead", headerMap);
                 }
             };
@@ -364,7 +359,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 GethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR, "call method setAccount('accountId') before");
+                promise.reject(DELETE_ACCOUNT_ERROR, 
+                     "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
             promise.reject(DELETE_ACCOUNT_ERROR, e);
@@ -384,7 +380,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             Account acc = GethHolder.getAccount();
             if (acc != null) {
-                byte[] key = GethHolder.getKeyStore().exportKey(acc, creationPassphrase, exportPassphrase);
+                byte[] key = GethHolder.getKeyStore()
+                    .exportKey(acc, creationPassphrase, exportPassphrase);
                 promise.resolve(key);
             } else {
                 promise.reject(EXPORT_KEY_ERROR, "call method setAccount('accountId') before");
@@ -462,11 +459,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             Address fromAddress = acc.getAddress();
             BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
             Context ctx = new Context();
-
-            if (nonce == -1) {
-              nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, fromAddress);
-            }
-
+            if (nonce == -1) nonce = GethHolder.getNode().getEthereumClient()
+                .getPendingNonceAt(ctx, fromAddress);
             Transaction tx = new Transaction(
                     (long) nonce,
                     new Address(toAddress),
@@ -474,9 +468,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                     (long) gasLimit,
                     new BigInt((long) gasPrice),
                     data.getBytes("UTF8"));
-
             // Sign a transaction with a single authorization
-            Transaction signed = GethHolder.getKeyStore().signTxPassphrase(acc, passphrase, tx, chain);
+            Transaction signed = GethHolder.getKeyStore()
+                .signTxPassphrase(acc, passphrase, tx, chain);
             // Send it out to the network.
             GethHolder.getNode().getEthereumClient().sendTransaction(ctx, signed);
             promise.resolve(tx.toString());
@@ -516,7 +510,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             Context ctx = new Context();
             Address address = acc.getAddress();
             long nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
-
             promise.resolve((double) nonce);
         } catch (Exception e) {
             promise.reject(GET_NONCE_ERROR, e);

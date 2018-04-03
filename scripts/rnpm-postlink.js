@@ -1,18 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const appBuildGradlePath = path.join('android', 'app', 'build.gradle');
-
-const defaultCompileStatement = "compile 'org.ethereum:geth:1.8.2'";
-const requiredCompileStatement = "compile 'org.ethereum:geth:1.8.2'";
-
-
-// android/app/build.gradle
-// 0) Load the file
-let buildGradleContents = fs.readFileSync(appBuildGradlePath, 'utf8');
-
-// 1) Check that react-native-firebase compile statement is the correct format
-buildGradleContents = buildGradleContents.replace(defaultCompileStatement, requiredCompileStatement);
-
-// 4) Write file
-fs.writeFileSync(appBuildGradlePath, buildGradleContents);
+const appBuildGradlePath = path.join('android', 'app', 'build.gradle')
+const defaultCompileStatement = "compile 'org.ethereum:geth:1.8.2'"
+const requiredCompileStatement = "compile 'org.ethereum:geth:1.8.2'"
+let buildGradleContents = fs.readFileSync(appBuildGradlePath, 'utf8')
+buildGradleContents = buildGradleContents.replace(defaultCompileStatement, requiredCompileStatement)
+fs.writeFileSync(appBuildGradlePath, buildGradleContents)
