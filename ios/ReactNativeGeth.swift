@@ -14,7 +14,7 @@ class ReactNativeGeth: NSObject {
     private var ETH_DIR: String = ".ethereum";
     private var KEY_STORE_DIR: String = "keystore";
     let ctx = GethNewContext()
-    
+
     @objc(addEvent:location:date:)
     func addEvent(name: String, location: String, date: NSNumber) -> Void {
         NSLog("Adding new event...")
