@@ -14,10 +14,14 @@ class ReactNativeGeth: NSObject {
     private var TAG: String = "Geth"
     private var ETH_DIR: String = ".ethereum"
     private var KEY_STORE_DIR: String = "keystore"
-    private let ctx = GethNewContext()
-    private var geth_node = NodeRunner()
+    private let ctx: GethContext
+    private var geth_node: NodeRunner
     private var datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
+    override init() {
+        self.ctx = GethNewContext()
+        self.geth_node = NodeRunner()
+    }
     @objc(getName)
     func getName() -> String {
         return TAG
@@ -31,7 +35,7 @@ class ReactNativeGeth: NSObject {
      * @return Return true if created and configured node
      */
     @objc(nodeConfig:resolver:rejecter:)
-    func nodeConfig(config: NSObject, resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func nodeConfig(config: NSObject, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             var nodeconfig: GethNodeConfig = geth_node.getNodeConfig()
             var nodeDir: String = ETH_DIR
@@ -62,7 +66,7 @@ class ReactNativeGeth: NSObject {
                 reject(nil, nil, error)
                 return
             }
-            resolve(true)
+            resolve([true] as NSObject)
         } catch let nodeConfigError as NSError {
             reject(nil, nil, nodeConfigError)
         }
@@ -75,12 +79,14 @@ class ReactNativeGeth: NSObject {
      * @return Return true if started.
      */
     @objc(startNode:rejecter:)
-    func startNode(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+    func startNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
+            var result: Bool = false
             if(geth_node.getNode() != nil) {
-                try geth_node.getNode().start()
-                resolve(true)
+                try geth_node.getNode()?.start()
+                result = true
             }
+            resolve([result] as NSObject)
         } catch let nodeStartError as NSError {
             reject(nil, nil, nodeStartError)
         }

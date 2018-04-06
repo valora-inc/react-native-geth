@@ -19,16 +19,16 @@ class NodeRunner {
     private var nodeconf: GethNodeConfig?
     
     init() {
-        nodeconf = GethNewNodeConfig()
+        self.nodeconf = GethNewNodeConfig()
     }
     
     func getNodeConfig() -> GethNodeConfig {
-        return nodeconf!
+        return self.nodeconf!
     }
     
     func getNode() -> GethNode? {
-        if(node != nil) {
-            return node
+        if(self.node != nil) {
+            return self.node
         }
         return nil
     }
