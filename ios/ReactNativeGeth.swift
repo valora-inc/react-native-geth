@@ -11,12 +11,78 @@ import Geth
 
 @objc(ReactNativeGeth)
 class ReactNativeGeth: NSObject {
-    private var ETH_DIR: String = ".ethereum";
-    private var KEY_STORE_DIR: String = "keystore";
-    let ctx = GethNewContext()
+    private var TAG: String = "Geth"
+    private var ETH_DIR: String = ".ethereum"
+    private var KEY_STORE_DIR: String = "keystore"
+    private let ctx = GethNewContext()
+    private var geth_node = NodeRunner()
+    private var datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
-    @objc(addEvent:location:date:)
-    func addEvent(name: String, location: String, date: NSNumber) -> Void {
-        NSLog("Adding new event...")
+    @objc(getName)
+    func getName() -> String {
+        return TAG
+    }
+    
+    /**
+     * Creates and configures a new Geth node.
+     *
+     * @param config  Json object configuration node
+     * @param promise Promise
+     * @return Return true if created and configured node
+     */
+    @objc(nodeConfig:resolver:rejecter:)
+    func nodeConfig(config: NSObject, resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var nodeconfig: GethNodeConfig = geth_node.getNodeConfig()
+            var nodeDir: String = ETH_DIR
+            var keyStoreDir: String = KEY_STORE_DIR
+            var error: NSError?
+            
+            if(config.value(forKey: "enodes") != nil) {
+                // TODO: use static nodes from config
+                //geth_node.writeStaticNodesFile(config.valueForKey("enodes"))
+            }
+            if((config.value(forKey: "chainID")) != nil) {
+                nodeconfig.setEthereumNetworkID(config.value(forKey: "chainID") as! Int64)
+            }
+            if(config.value(forKey: "maxPeers") != nil) {
+                nodeconfig.setMaxPeers(config.value(forKey: "maxPeers") as! Int)
+            }
+            if(config.value(forKey: "genesis") != nil) {
+                nodeconfig.setEthereumGenesis(config.value(forKey: "genesis") as! String)
+            }
+            if(config.value(forKey: "nodeDir") != nil) {
+                nodeDir = config.value(forKey: "nodeDir") as! String
+            }
+            if(config.value(forKey: "keyStoreDir") != nil) {
+                keyStoreDir = config.value(forKey: "keyStoreDir") as! String
+            }
+            var node: GethNode = GethNewNode(datadir + nodeDir, nodeconfig, &error)
+            if error != nil {
+                reject(nil, nil, error)
+                return
+            }
+            resolve(true)
+        } catch let nodeConfigError as NSError {
+            reject(nil, nil, nodeConfigError)
+        }
+    }
+    
+    /**
+     * Start creates a live P2P node and starts running it.
+     *
+     * @param promise Promise
+     * @return Return true if started.
+     */
+    @objc(startNode:rejecter:)
+    func startNode(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+        do {
+            if(geth_node.getNode() != nil) {
+                try geth_node.getNode().start()
+                resolve(true)
+            }
+        } catch let nodeStartError as NSError {
+            reject(nil, nil, nodeStartError)
+        }
     }
 }

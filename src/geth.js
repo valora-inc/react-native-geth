@@ -28,8 +28,6 @@ class Geth {
 
   constructor(config: NodeConfig): void {
     this.config = (config) ? config : {}
-    console.log(NativeModules);
-    console.log(this.geth);
     this.geth.nodeConfig(this.config)
   }
 
