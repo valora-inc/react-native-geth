@@ -10,26 +10,32 @@ import Foundation
 import Geth
 
 class NodeRunner {
-    var gethNode = [String: Any]()
-    var node: GethNode?
-    var ethClient: GethEthereumClient!
-    var blockNumber: Int64!
-    let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-    let ctx = GethNewContext()
+    private let ctx = GethNewContext()
+    private var node: GethNode?
     private var nodeconf: GethNodeConfig?
+    private var keyStore: GethKeyStore?
     
     init() {
         self.nodeconf = GethNewNodeConfig()
     }
     
-    func getNodeConfig() -> GethNodeConfig {
-        return self.nodeconf!
+    func getNodeConfig() -> GethNodeConfig? {
+        return self.nodeconf
     }
     
     func getNode() -> GethNode? {
-        if(self.node != nil) {
-            return self.node
-        }
-        return nil
+        return self.node
+    }
+    
+    func setNode(node: GethNode) -> Void {
+        self.node = node
+    }
+    
+    func setNodeConfig(nc: GethNodeConfig) -> Void {
+        self.nodeconf = nc
+    }
+    
+    func setKeyStore(ks: GethKeyStore) -> Void {
+        self.keyStore = ks
     }
 }

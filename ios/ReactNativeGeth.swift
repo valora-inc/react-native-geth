@@ -37,7 +37,7 @@ class ReactNativeGeth: NSObject {
     @objc(nodeConfig:resolver:rejecter:)
     func nodeConfig(config: NSObject, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            var nodeconfig: GethNodeConfig = geth_node.getNodeConfig()
+            let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
             var nodeDir: String = ETH_DIR
             var keyStoreDir: String = KEY_STORE_DIR
             var error: NSError?
@@ -61,14 +61,19 @@ class ReactNativeGeth: NSObject {
             if(config.value(forKey: "keyStoreDir") != nil) {
                 keyStoreDir = config.value(forKey: "keyStoreDir") as! String
             }
-            var node: GethNode = GethNewNode(datadir + nodeDir, nodeconfig, &error)
+            
+            let node: GethNode = GethNewNode(datadir + nodeDir, nodeconfig, &error)
+            let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
                 reject(nil, nil, error)
                 return
             }
+            geth_node.setNodeConfig(nc: nodeconfig)
+            geth_node.setKeyStore(ks: keyStore)
+            geth_node.setNode(node: node)
             resolve([true] as NSObject)
-        } catch let nodeConfigError as NSError {
-            reject(nil, nil, nodeConfigError)
+        } catch let NCErr as NSError {
+            reject(nil, nil, NCErr)
         }
     }
     
@@ -87,8 +92,28 @@ class ReactNativeGeth: NSObject {
                 result = true
             }
             resolve([result] as NSObject)
-        } catch let nodeStartError as NSError {
-            reject(nil, nil, nodeStartError)
+        } catch let NSErr as NSError {
+            reject(nil, nil, NSErr)
+        }
+    }
+    
+    /**
+     * Terminates a running node along with all it's services.
+     *
+     * @param promise Promise
+     * @return return true if stopped.
+     */
+    @objc(stopNode:rejecter:)
+    func stopNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result: Bool = false
+            if(geth_node.getNode() != nil) {
+                try geth_node.getNode()?.stop()
+                result = true
+            }
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            reject(nil, nil, NSErr)
         }
     }
 }
