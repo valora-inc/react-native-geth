@@ -1,6 +1,6 @@
 // @flow
 
-import { NativeModules } from 'react-native'
+import { Platform, NativeModules } from 'react-native'
 import type {
   NodeConfig,
   Account,
@@ -21,7 +21,10 @@ import type {
  */
 class Geth {
   config: ?NodeConfig
-  geth: GethNativeModule = NativeModules.Geth
+  geth: GethNativeModule = Platform.select({
+      ios: NativeModules.ReactNativeGeth,
+      android: NativeModules.Geth
+  });
 
   constructor(config: NodeConfig): void {
     this.config = (config) ? config : {}

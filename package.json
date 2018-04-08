@@ -8,7 +8,8 @@
 	},
 	"peerDependencies": {
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"react-native-swift": "^1.2.1"
 	},
 	"devDependencies": {
 		"babel-eslint": "^8.0.3",
