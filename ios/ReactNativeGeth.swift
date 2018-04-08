@@ -16,7 +16,7 @@ class ReactNativeGeth: NSObject {
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
     private var geth_node: NodeRunner
-    private var datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+    private var datadir = NSHomeDirectory()
 
     override init() {
         self.ctx = GethNewContext()
@@ -37,17 +37,16 @@ class ReactNativeGeth: NSObject {
     @objc(nodeConfig:resolver:rejecter:)
     func nodeConfig(config: NSObject, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            var nodeconfig: GethNodeConfig = geth_node.getNodeConfig()
+            let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
             var nodeDir: String = ETH_DIR
             var keyStoreDir: String = KEY_STORE_DIR
             var error: NSError?
             
             if(config.value(forKey: "enodes") != nil) {
-                // TODO: use static nodes from config
-                //geth_node.writeStaticNodesFile(config.valueForKey("enodes"))
+                geth_node.writeStaticNodesFile(enodes: config.value(forKey: "enodes") as! String)
             }
-            if((config.value(forKey: "chainID")) != nil) {
-                nodeconfig.setEthereumNetworkID(config.value(forKey: "chainID") as! Int64)
+            if((config.value(forKey: "networkID")) != nil) {
+                nodeconfig.setEthereumNetworkID(config.value(forKey: "networkID") as! Int64)
             }
             if(config.value(forKey: "maxPeers") != nil) {
                 nodeconfig.setMaxPeers(config.value(forKey: "maxPeers") as! Int)
@@ -61,14 +60,20 @@ class ReactNativeGeth: NSObject {
             if(config.value(forKey: "keyStoreDir") != nil) {
                 keyStoreDir = config.value(forKey: "keyStoreDir") as! String
             }
-            var node: GethNode = GethNewNode(datadir + nodeDir, nodeconfig, &error)
+            
+            let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
+            let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
                 reject(nil, nil, error)
                 return
             }
+            geth_node.setNodeConfig(nc: nodeconfig)
+            geth_node.setKeyStore(ks: keyStore)
+            geth_node.setNode(node: node)
             resolve([true] as NSObject)
-        } catch let nodeConfigError as NSError {
-            reject(nil, nil, nodeConfigError)
+        } catch let NCErr as NSError {
+            NSLog("@", NCErr)
+            reject(nil, nil, NCErr)
         }
     }
     
@@ -87,8 +92,30 @@ class ReactNativeGeth: NSObject {
                 result = true
             }
             resolve([result] as NSObject)
-        } catch let nodeStartError as NSError {
-            reject(nil, nil, nodeStartError)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+    
+    /**
+     * Terminates a running node along with all it's services.
+     *
+     * @param promise Promise
+     * @return return true if stopped.
+     */
+    @objc(stopNode:rejecter:)
+    func stopNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result: Bool = false
+            if(geth_node.getNode() != nil) {
+                try geth_node.getNode()?.stop()
+                result = true
+            }
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
         }
     }
 }
