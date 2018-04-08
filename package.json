@@ -50,7 +50,8 @@
 		"eth",
 		"react",
 		"react-native",
-		"android"
+		"android",
+		"ios"
 	],
 	"repository": {
 		"type": "git",
