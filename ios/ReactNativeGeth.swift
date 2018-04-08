@@ -16,7 +16,7 @@ class ReactNativeGeth: NSObject {
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
     private var geth_node: NodeRunner
-    private var datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+    private var datadir = NSHomeDirectory()
 
     override init() {
         self.ctx = GethNewContext()
@@ -44,7 +44,7 @@ class ReactNativeGeth: NSObject {
             
             if(config.value(forKey: "enodes") != nil) {
                 // TODO: use static nodes from config
-                //geth_node.writeStaticNodesFile(config.valueForKey("enodes"))
+                geth_node.writeStaticNodesFile(enodes: config.value(forKey: "enodes") as! String)
             }
             if((config.value(forKey: "chainID")) != nil) {
                 nodeconfig.setEthereumNetworkID(config.value(forKey: "chainID") as! Int64)
@@ -62,7 +62,7 @@ class ReactNativeGeth: NSObject {
                 keyStoreDir = config.value(forKey: "keyStoreDir") as! String
             }
             
-            let node: GethNode = GethNewNode(datadir + nodeDir, nodeconfig, &error)
+            let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
             let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
                 reject(nil, nil, error)
