@@ -43,11 +43,10 @@ class ReactNativeGeth: NSObject {
             var error: NSError?
             
             if(config.value(forKey: "enodes") != nil) {
-                // TODO: use static nodes from config
                 geth_node.writeStaticNodesFile(enodes: config.value(forKey: "enodes") as! String)
             }
-            if((config.value(forKey: "chainID")) != nil) {
-                nodeconfig.setEthereumNetworkID(config.value(forKey: "chainID") as! Int64)
+            if((config.value(forKey: "networkID")) != nil) {
+                nodeconfig.setEthereumNetworkID(config.value(forKey: "networkID") as! Int64)
             }
             if(config.value(forKey: "maxPeers") != nil) {
                 nodeconfig.setMaxPeers(config.value(forKey: "maxPeers") as! Int)
@@ -73,6 +72,7 @@ class ReactNativeGeth: NSObject {
             geth_node.setNode(node: node)
             resolve([true] as NSObject)
         } catch let NCErr as NSError {
+            NSLog("@", NCErr)
             reject(nil, nil, NCErr)
         }
     }
@@ -93,6 +93,7 @@ class ReactNativeGeth: NSObject {
             }
             resolve([result] as NSObject)
         } catch let NSErr as NSError {
+            NSLog("@", NSErr)
             reject(nil, nil, NSErr)
         }
     }
@@ -113,6 +114,7 @@ class ReactNativeGeth: NSObject {
             }
             resolve([result] as NSObject)
         } catch let NSErr as NSError {
+            NSLog("@", NSErr)
             reject(nil, nil, NSErr)
         }
     }
