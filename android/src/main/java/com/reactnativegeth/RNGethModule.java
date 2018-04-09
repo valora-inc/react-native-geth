@@ -82,7 +82,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
                 GethHolder.writeStaticNodesFile(config.getString("enodes"));
-            if (config.hasKey("chainID")) nc.setEthereumNetworkID(config.getInt("chainID"));
+            if (config.hasKey("networkID")) nc.setEthereumNetworkID(config.getInt("networkID"));
             if (config.hasKey("maxPeers")) nc.setMaxPeers(config.getInt("maxPeers"));
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
             if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");

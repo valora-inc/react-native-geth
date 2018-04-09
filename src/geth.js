@@ -12,7 +12,7 @@ import type {
 /**
  * Geth object
  * @param {Object} config
- * @param {number} config.chainID Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+ * @param {number} config.networkID Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
  * @param {number} config.maxPeers Maximum number of network peers (network disabled if set to 0) (default: 25)
  * @param {string} config.genesis genesis.json file
  * @param {string} config.nodeDir Data directory for the databases and keystore
