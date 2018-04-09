@@ -1,7 +1,7 @@
 // @flow
 
 type NodeConfig = ? {
-  chainID?: number,
+  networkID?: number,
   maxPeers?: number,
   genesis?: string,
   nodeDir?: string,

@@ -58,6 +58,8 @@ const Eth = async () => {
 // Custom Ethereum Network
 const PrivateEth = async () => {
   // Network ID
+  const networkID = 1
+  // Chain ID
   const chainID = 17
   // genesis.json
   const genesis = `{
@@ -73,7 +75,7 @@ const PrivateEth = async () => {
   }`
 
   const config = {
-    "chainID": chainID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+    "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
     "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
     "genesis": genesis, // genesis.json file
     "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
