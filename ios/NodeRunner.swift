@@ -3,7 +3,6 @@
 //  ReactNativeGeth
 //
 //  Created by 0mkar on 06/04/18.
-//  Copyright © 2018 Facebook. All rights reserved.
 //
 
 import Foundation

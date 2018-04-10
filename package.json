@@ -1,6 +1,6 @@
 {
 	"name": "react-native-geth",
-	"version": "0.0.10-development",
+	"version": "0.1.0-development",
 	"main": "src/geth",
 	"scripts": {
 		"test": "eslint src && flow",
@@ -32,7 +32,7 @@
 	},
 	"rnpm": {
 		"android": {
-			"buildPatch": "    compile 'org.ethereum:geth:1.7.1'\n",
+			"buildPatch": "    compile 'org.ethereum:geth:1.8.3'\n",
 			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
 			"packageInstance": "new RNGethPackage()",
 			"sourceDir": "./android"
