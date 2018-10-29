@@ -87,6 +87,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
             if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
+            if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             Node nd = Geth.newNode(getReactApplicationContext()
                     .getFilesDir() + "/" + nodeDir, nc);
             KeyStore ks = new KeyStore(getReactApplicationContext()
