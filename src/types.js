@@ -7,6 +7,7 @@ type NodeConfig = ? {
   nodeDir?: string,
   keyStoreDir?: string,
   enodes?: string
+  syncMode?: number
 }
 
 type Account = {
