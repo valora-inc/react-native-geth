@@ -4,11 +4,17 @@ package com.reactnativegeth;
  * Created by yaska on 17-09-29.
  */
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.ConditionVariable;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.UserNotAuthenticatedException;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.facebook.react.bridge.ActivityEventListener;
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -40,6 +46,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.locks.Condition;
 
 import javax.crypto.KeyGenerator;
 
@@ -65,6 +72,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String NEW_TRANSACTION_ERROR = "NEW_TRANSACTION_ERROR";
     private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
     private static final String DEVICE_SECURE_ERROR = "DEVICE_SECURE_ERROR";
+    private static final String MAKE_DEVICE_SECURE_ERROR = "MAKE_DEVICE_SECURE_ERROR";
     private static final String KEYSTORE_INIT_ERROR = "KEYSTORE_INIT_ERROR";
     private static final String USER_NOT_AUTHENTICATED_ERROR = "USER_NOT_AUTHENTICATED_ERROR";
     private static final String STORE_PIN_ERROR = "STORE_PIN_ERROR";
@@ -376,7 +384,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 GethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR, 
+                promise.reject(DELETE_ACCOUNT_ERROR,
                      "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
@@ -544,6 +552,65 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void makeDeviceSecure(String message, String actionButtonLabel, final Promise promise) {
+        final int requestCodeForSetPasswordAction = 3;
+
+        AndroidKeyStoreHelper.MakeDeviceSecureCallback makeDeviceSecureCallback =
+                new AndroidKeyStoreHelper.MakeDeviceSecureCallback() {
+                    @Override
+                    public void onUserCancelled() {
+                        Log.d(TAG, "makeDeviceSecure/onUserCancelled");
+                        promise.reject(MAKE_DEVICE_SECURE_ERROR, "User dismissed dialog");
+                    }
+
+                    @Override
+                    public void onUserTransitionToSetupDeviceLock() {
+                        ActivityEventListener activityEventListener = new ActivityEventListener() {
+                            @Override
+                            public void onActivityResult(Activity activity,
+                                                         int requestcode,
+                                                         int resultCode,
+                                                         Intent intent) {
+                                if (requestcode == requestCodeForSetPasswordAction) {
+                                    if (AndroidKeyStoreHelper.isDeviceSecure(getReactApplicationContext())) {
+                                        promise.resolve(true);
+                                    } else if (resultCode == Activity.RESULT_OK) {
+                                        // Retry since now the user is authenticated.
+                                        Log.d(TAG, "makeDeviceSecure/onActivityResult/ok");
+                                        promise.resolve(AndroidKeyStoreHelper.isDeviceSecure(
+                                                getReactApplicationContext()));
+                                    } else {
+                                        // User decided to reject authentication.
+                                        Log.d(TAG, "makeDeviceSecure/onActivityResult/user-canceled-setup/" + resultCode);
+                                        promise.reject(MAKE_DEVICE_SECURE_ERROR, "User canceled setup");
+                                    }
+                                    getReactApplicationContext().removeActivityEventListener(this);
+                                }
+                                getReactApplicationContext().removeActivityEventListener(this);
+                            }
+
+                            @Override
+                            public void onNewIntent(Intent intent) {
+                                // Do nothing
+                            }
+                        };
+                        getReactApplicationContext().addActivityEventListener(activityEventListener);
+                    }
+                };
+        try {
+            AndroidKeyStoreHelper.makeDeviceSecure(
+                    getCurrentActivity(),
+                    message,
+                    actionButtonLabel,
+                    requestCodeForSetPasswordAction,
+                    makeDeviceSecureCallback);
+        } catch (Exception e) {
+            Log.d(TAG, "makeDeviceSecure/error", e);
+            promise.reject(MAKE_DEVICE_SECURE_ERROR, e);
+        }
+    }
+
     /**
      * This can be called multiple times, it won't recreate the key if the key already exists.
      */
@@ -587,17 +654,63 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void storePin(String keyName, String pinValue, Promise promise) {
+    public void storePin(final String keyName, final String pinValue, final Promise promise) {
         try {
             boolean result = AndroidKeyStoreHelper.storePin(
                     getReactApplicationContext(),
                     keyName,
                     pinValue);
             promise.resolve(result);
-        } catch (UserNotAuthenticatedException e) {
-            promise.reject(USER_NOT_AUTHENTICATED_ERROR, e);
+        } catch (final UserNotAuthenticatedException e) {
+            final int authenticateForEncryptionRequestCode = 1;
+            final Runnable retryRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    storePin(keyName, pinValue, promise);
+                }
+            };
+            performAuthentication(promise, e, authenticateForEncryptionRequestCode, retryRunnable);
         } catch (Exception e) {
             promise.reject(STORE_PIN_ERROR, e);
+        }
+    }
+
+    private void performAuthentication(final Promise promise,
+                                       final UserNotAuthenticatedException e,
+                                       final int requestCode,
+                                       final Runnable retryRunnable) {
+        ActivityEventListener activityEventListener = new ActivityEventListener() {
+            @Override
+            public void onActivityResult(Activity activity,
+                                         int requestcode,
+                                         int resultCode,
+                                         Intent intent) {
+                if (requestcode == requestCode) {
+                    if (resultCode == Activity.RESULT_OK) {
+                        // Retry since now the user is authenticated.
+                        retryRunnable.run();
+                    } else {
+                        // User decided to reject authentication.
+                        promise.reject(USER_NOT_AUTHENTICATED_ERROR, e);
+                    }
+                    getReactApplicationContext().removeActivityEventListener(this);
+                }
+            }
+
+            @Override
+            public void onNewIntent(Intent intent) {
+                // Do nothing
+            }
+        };
+        getReactApplicationContext().addActivityEventListener(activityEventListener);
+        Activity currentActivity = getCurrentActivity();
+        if (currentActivity == null) {
+            // Current activity is null, cannot authenticate.
+            promise.reject(USER_NOT_AUTHENTICATED_ERROR, e);
+        } else {
+            AndroidKeyStoreHelper.authenticateUser(
+                    currentActivity,
+                    requestCode);
         }
     }
 

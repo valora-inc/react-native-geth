@@ -195,6 +195,11 @@ class Geth {
     return await this.geth.isDeviceSecure()
   }
 
+  async makeDeviceSecure(message: string, actionButtonLabel: string) : Promise<boolean> {
+    return await this.geth.makeDeviceSecure(message, actionButtonLabel)
+  }
+  
+
   async keystoreInit(
     keyName: string,
     reauthenticationTimeoutInSecs: number,

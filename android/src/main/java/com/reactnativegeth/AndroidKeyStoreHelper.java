@@ -1,8 +1,11 @@
 package com.reactnativegeth;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -23,6 +26,9 @@ public class AndroidKeyStoreHelper {
     private static final String PIN_IV_FILENAME = "pin_iv.txt";
 
 
+    /**
+     * @see #makeDeviceSecure(Context, String, String)
+     */
     public static boolean isDeviceSecure(Context context) {
         @Nullable KeyguardManager keyguardManager = getKeyguardManager(context);
         if (keyguardManager == null) {
@@ -32,16 +38,28 @@ public class AndroidKeyStoreHelper {
         return keyguardManager.isDeviceSecure();
     }
 
-//    public static void authenticateUser(Activity activity) {
-//        @Nullable KeyguardManager keyguardManager = getKeyguardManager(activity.getApplicationContext());
-//        // Create the Confirm Credentials screen. You can customize the title and description. Or
-//        // we will provide a generic one for you if you leave it null
-//        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(null, null);
-//        if (intent != null) {
-//            activity.startActivityForResult(intent, REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS);
-//        }
-//
-//    }
+    public static void makeDeviceSecure(Activity activity,
+                                        String description,
+                                        String buttonLabel,
+                                        int requestCodeForReturn,
+                                        MakeDeviceSecureCallback callback) {
+        Intent buttonActionIntent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+        showPrompt(activity, description, buttonLabel, buttonActionIntent, requestCodeForReturn,
+                callback);
+    }
+
+    public static void authenticateUser(Activity activity, int requestCode) {
+        @Nullable KeyguardManager keyguardManager = getKeyguardManager(activity);
+        if (keyguardManager == null) {
+            throw new RuntimeException("Unable to access Keyguard manager");
+        }
+        String title = null;
+        String description = null;
+        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(title, description);
+        if (intent != null) {
+            activity.startActivityForResult(intent, requestCode);
+        }
+    }
 
     private static KeyguardManager getKeyguardManager(Context context) {
         return (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
@@ -118,7 +136,7 @@ public class AndroidKeyStoreHelper {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return new String(cipher.doFinal(encryptedData));
         } catch (UserNotAuthenticatedException e) {
-            Log.e(TAG, "retrievePin/User is not authenticated", e);
+            Log.e(TAG, "retrievePin/User is not authenticated");
             throw e;
         } catch (NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException |
                 NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
@@ -196,7 +214,7 @@ public class AndroidKeyStoreHelper {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             encryptedData = cipher.doFinal(plainTextMessage.getBytes(Charset.defaultCharset()));
         } catch (UserNotAuthenticatedException e) {
-            Log.w(TAG, "encrypt/User not authenticated", e);
+            Log.w(TAG, "encrypt/User not authenticated");
             throw e;
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidKeyException e) {
             Log.w(TAG, "encrypt/Failed to encrypt data", e);
@@ -256,5 +274,38 @@ public class AndroidKeyStoreHelper {
             baos.write(buf, 0, numRead);
             numRead = fis.read(buf);
         }
+    }
+
+    private static void showPrompt(final Activity activity,
+                                   String message,
+                                   String buttonLabel,
+                                   final Intent buttonActionIntent,
+                                   final int requestCodeForReturn,
+                                   final MakeDeviceSecureCallback callback) {
+        if (activity.isDestroyed() || activity.isFinishing()) {
+            Log.w(TAG, "Cannot show dialog, activity is finishing");
+            return;
+        }
+        new AlertDialog.Builder(activity)
+                .setMessage(message)
+                .setPositiveButton(buttonLabel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        activity.startActivityForResult(buttonActionIntent, requestCodeForReturn);
+                        callback.onUserTransitionToSetupDeviceLock();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        callback.onUserCancelled();
+                    }
+                })
+                .show();
+    }
+
+    interface MakeDeviceSecureCallback {
+        void onUserCancelled();
+        void onUserTransitionToSetupDeviceLock();
     }
 }
