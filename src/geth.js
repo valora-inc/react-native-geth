@@ -195,7 +195,24 @@ class Geth {
     return await this.geth.isDeviceSecure()
   }
 
-  
+  async keystoreInit(
+    keyName: string,
+    reauthenticationTimeoutInSecs: number,
+     invalidateKeyByNewBiometricEnrollment: boolean): Promise<boolean> {
+       return await this.geth.keyStoreInit(keyName,
+          reauthenticationTimeoutInSecs,
+           invalidateKeyByNewBiometricEnrollment)
+  }
+
+  async storePin(
+    keyName: string,
+    pinValue: string): Promise<boolean> {
+      return await this.geth.storePin(keyName, pinValue)
+    }
+
+  async retrievePin(keyName: string): Promise<string> {
+    return await this.geth.retrievePin(keyName)
+  }
 }
 
 export default Geth

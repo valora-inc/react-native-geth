@@ -4,6 +4,9 @@ package com.reactnativegeth;
  * Created by yaska on 17-09-29.
  */
 
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.security.keystore.UserNotAuthenticatedException;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
@@ -22,7 +25,6 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
-import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
 import org.ethereum.geth.KeyStore;
@@ -32,7 +34,14 @@ import org.ethereum.geth.NodeConfig;
 import org.ethereum.geth.SyncProgress;
 import org.ethereum.geth.Transaction;
 
-import android.app.KeyguardManager;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+
+import javax.crypto.KeyGenerator;
 
 public class RNGethModule extends ReactContextBaseJavaModule {
 
@@ -56,6 +65,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String NEW_TRANSACTION_ERROR = "NEW_TRANSACTION_ERROR";
     private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
     private static final String DEVICE_SECURE_ERROR = "DEVICE_SECURE_ERROR";
+    private static final String KEYSTORE_INIT_ERROR = "KEYSTORE_INIT_ERROR";
+    private static final String USER_NOT_AUTHENTICATED_ERROR = "USER_NOT_AUTHENTICATED_ERROR";
+    private static final String STORE_PIN_ERROR = "STORE_PIN_ERROR";
+    private static final String RETRIEVE_PIN_ERROR = "RTETRIEVE_PIN_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
     private GethHolder GethHolder;
@@ -525,11 +538,79 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void isDeviceSecure(Promise promise) {
         try {
-            KeyguardManager KeyguardManager = (KeyguardManager) getReactApplicationContext()
-                    .getSystemService(android.content.Context.KEYGUARD_SERVICE);
-            promise.resolve(KeyguardManager.isDeviceSecure());
+            promise.resolve(AndroidKeyStoreHelper.isDeviceSecure(getReactApplicationContext()));
         } catch (Exception e) {
             promise.reject(DEVICE_SECURE_ERROR, e);
+        }
+    }
+
+    /**
+     * This can be called multiple times, it won't recreate the key if the key already exists.
+     */
+    @ReactMethod
+    public void keyStoreInit(String keyName,
+            int reauthenticationTimeoutInSecs,
+            boolean invalidateKeyByNewBiometricEnrollment,
+            Promise promise) {
+        try {
+            if (!AndroidKeyStoreHelper.isDeviceSecure(getReactApplicationContext())) {
+                promise.reject(DEVICE_SECURE_ERROR, new Exception("Device is not secure"));
+                return;
+            }
+            if (!AndroidKeyStoreHelper.keyExists(keyName)) {
+                Log.i(TAG, "keyStoreInit/key does not exist, creating it");
+                createKey(keyName, reauthenticationTimeoutInSecs, invalidateKeyByNewBiometricEnrollment);
+                promise.resolve(true);
+            } else {
+                Log.i(TAG, "keyStoreInit/key exists");
+                promise.resolve(true);
+            }
+            Log.d("GethModule", "key created");
+        } catch (Exception e) {
+            promise.reject(KEYSTORE_INIT_ERROR, e);
+        }
+    }
+
+    /**
+     * Creates a symmetric key in the Android Key Store which can only be used after
+     * the user has authenticated with device credentials within the last X seconds.
+     */
+    private void createKey(String keyName, int reauthenticationTimeoutInSecs,
+            boolean invalidateKeyByNewBiometricEnrollment) {
+        try {
+            boolean result = AndroidKeyStoreHelper.createKey(keyName,
+                    reauthenticationTimeoutInSecs, invalidateKeyByNewBiometricEnrollment);
+            Log.i(TAG, "createKey/key creation result: " + result);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create a symmetric key", e);
+        }
+    }
+
+    @ReactMethod
+    public void storePin(String keyName, String pinValue, Promise promise) {
+        try {
+            boolean result = AndroidKeyStoreHelper.storePin(
+                    getReactApplicationContext(),
+                    keyName,
+                    pinValue);
+            promise.resolve(result);
+        } catch (UserNotAuthenticatedException e) {
+            promise.reject(USER_NOT_AUTHENTICATED_ERROR, e);
+        } catch (Exception e) {
+            promise.reject(STORE_PIN_ERROR, e);
+        }
+    }
+
+    @ReactMethod
+    public void retrievePin(String keyName, Promise promise) {
+        try {
+            String result = AndroidKeyStoreHelper.retrievePin(getReactApplicationContext(),
+                    keyName);
+            promise.resolve(result);
+        } catch (UserNotAuthenticatedException e) {
+            promise.reject(USER_NOT_AUTHENTICATED_ERROR, e);
+        } catch (Exception e) {
+            promise.reject(RETRIEVE_PIN_ERROR, e);
         }
     }
 }

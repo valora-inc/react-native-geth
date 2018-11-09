@@ -66,7 +66,10 @@ type GethNativeModule = {
     data: string) => Promise<string>,
   suggestGasPrice: () => Promise<number>,
   getPendingNonce: () => Promise<number>,
-  isDeviceSecure: () => Promise<boolean>
+  isDeviceSecure: () => Promise<boolean>,
+  keystoreInit: (keyName: string, reauthenticationTimeoutInSecs: number, invalidateKeyByNewBiometricEnrollment: boolean) => Promise<boolean>,
+  storePin: (keyName: string, pinValue: string) => Promise<boolean>,
+  retrievePin: (keyName: string) => Promise<string>,
 }
 
 export type {
