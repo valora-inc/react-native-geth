@@ -190,6 +190,12 @@ class Geth {
   async getPendingNonce(): Promise<number> {
     return await this.geth.getPendingNonce()
   }
+
+  async isDeviceSecure(): Promise<boolean> {
+    return await this.geth.isDeviceSecure()
+  }
+
+  
 }
 
 export default Geth

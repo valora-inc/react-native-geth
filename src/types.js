@@ -65,7 +65,8 @@ type GethNativeModule = {
     toAddress: string, amount: number, gasLimit: number, gasPrice: number,
     data: string) => Promise<string>,
   suggestGasPrice: () => Promise<number>,
-  getPendingNonce: () => Promise<number>
+  getPendingNonce: () => Promise<number>,
+  isDeviceSecure: () => Promise<boolean>
 }
 
 export type {

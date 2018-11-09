@@ -32,6 +32,8 @@ import org.ethereum.geth.NodeConfig;
 import org.ethereum.geth.SyncProgress;
 import org.ethereum.geth.Transaction;
 
+import android.app.KeyguardManager;
+
 public class RNGethModule extends ReactContextBaseJavaModule {
 
     private static final String TAG = "Geth";
@@ -53,6 +55,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String GET_NONCE_ERROR = "GET_NONCE_ERROR";
     private static final String NEW_TRANSACTION_ERROR = "NEW_TRANSACTION_ERROR";
     private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
+    private static final String DEVICE_SECURE_ERROR = "DEVICE_SECURE_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
     private GethHolder GethHolder;
@@ -516,6 +519,17 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             promise.resolve((double) nonce);
         } catch (Exception e) {
             promise.reject(GET_NONCE_ERROR, e);
+        }
+    }
+
+    @ReactMethod
+    public void isDeviceSecure(Promise promise) {
+        try {
+            KeyguardManager KeyguardManager = (KeyguardManager) getReactApplicationContext()
+                    .getSystemService(android.content.Context.KEYGUARD_SERVICE);
+            promise.resolve(KeyguardManager.isDeviceSecure());
+        } catch (Exception e) {
+            promise.reject(DEVICE_SECURE_ERROR, e);
         }
     }
 }
