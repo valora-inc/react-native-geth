@@ -88,6 +88,14 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
+            if (config.hasKey("logFile")) {
+                String logFileName = config.getString("logFile");
+                int logLevel = 3;  // Info
+                if (config.hasKey("logFileLogLevel")) {
+                    logLevel = config.getInt("logFileLogLevel");
+                }
+                Geth.sendLogsToFile(logFileName, logLevel, "term");
+            }
             Node nd = Geth.newNode(getReactApplicationContext()
                     .getFilesDir() + "/" + nodeDir, nc);
             KeyStore ks = new KeyStore(getReactApplicationContext()
