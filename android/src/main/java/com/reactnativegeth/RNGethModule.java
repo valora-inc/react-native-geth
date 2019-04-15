@@ -87,6 +87,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
             if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
+            if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             Node nd = Geth.newNode(getReactApplicationContext()
                     .getFilesDir() + "/" + nodeDir, nc);
             KeyStore ks = new KeyStore(getReactApplicationContext()
@@ -452,19 +453,21 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void createAndSendTransaction(String passphrase, double nonce, String toAddress,
-                                         double amount, double gasLimit, double gasPrice,
+                                         String amount, double gasLimit, double gasPrice,
                                          String data, Promise promise) {
         try {
             Account acc = GethHolder.getAccount();
             Address fromAddress = acc.getAddress();
             BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
             Context ctx = new Context();
+            BigInt bigIntAmount = new BigInt(0);
+            bigIntAmount.setString(amount, 10);
             if (nonce == -1) nonce = GethHolder.getNode().getEthereumClient()
                 .getPendingNonceAt(ctx, fromAddress);
             Transaction tx = new Transaction(
                     (long) nonce,
                     new Address(toAddress),
-                    new BigInt((long) amount),
+                    bigIntAmount,
                     (long) gasLimit,
                     new BigInt((long) gasPrice),
                     data.getBytes("UTF8"));
