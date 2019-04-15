@@ -450,34 +450,34 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @param promise    Promise
      * @return Return String transaction
      */
-    @ReactMethod
-    public void createAndSendTransaction(String passphrase, double nonce, String toAddress,
-                                         double amount, double gasLimit, double gasPrice,
-                                         String data, Promise promise) {
-        try {
-            Account acc = GethHolder.getAccount();
-            Address fromAddress = acc.getAddress();
-            BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
-            Context ctx = new Context();
-            if (nonce == -1) nonce = GethHolder.getNode().getEthereumClient()
-                .getPendingNonceAt(ctx, fromAddress);
-            Transaction tx = new Transaction(
-                    (long) nonce,
-                    new Address(toAddress),
-                    new BigInt((long) amount),
-                    (long) gasLimit,
-                    new BigInt((long) gasPrice),
-                    data.getBytes("UTF8"));
-            // Sign a transaction with a single authorization
-            Transaction signed = GethHolder.getKeyStore()
-                .signTxPassphrase(acc, passphrase, tx, chain);
-            // Send it out to the network.
-            GethHolder.getNode().getEthereumClient().sendTransaction(ctx, signed);
-            promise.resolve(tx.toString());
-        } catch (Exception e) {
-            promise.reject(NEW_TRANSACTION_ERROR, e);
-        }
-    }
+    // @ReactMethod
+    // public void createAndSendTransaction(String passphrase, double nonce, String toAddress,
+    //                                      double amount, double gasLimit, double gasPrice,
+    //                                      String data, Promise promise) {
+    //     try {
+    //         Account acc = GethHolder.getAccount();
+    //         Address fromAddress = acc.getAddress();
+    //         BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
+    //         Context ctx = new Context();
+    //         if (nonce == -1) nonce = GethHolder.getNode().getEthereumClient()
+    //             .getPendingNonceAt(ctx, fromAddress);
+    //         Transaction tx = new Transaction(
+    //                 (long) nonce,
+    //                 new Address(toAddress),
+    //                 new BigInt((long) amount),
+    //                 (long) gasLimit,
+    //                 new BigInt((long) gasPrice),
+    //                 data.getBytes("UTF8"));
+    //         // Sign a transaction with a single authorization
+    //         Transaction signed = GethHolder.getKeyStore()
+    //             .signTxPassphrase(acc, passphrase, tx, chain);
+    //         // Send it out to the network.
+    //         GethHolder.getNode().getEthereumClient().sendTransaction(ctx, signed);
+    //         promise.resolve(tx.toString());
+    //     } catch (Exception e) {
+    //         promise.reject(NEW_TRANSACTION_ERROR, e);
+    //     }
+    // }
 
     /**
      * Retrieves the currently suggested gas price to allow a timely execution of a transaction.
