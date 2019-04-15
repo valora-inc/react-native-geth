@@ -27,9 +27,13 @@ android {
 
 repositories {
     mavenCentral()
+
+    flatDir {
+      dirs "../../../../../node_modules/@celo/geth/build/bin"
+    }
 }
 
 dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
-    compile 'org.ethereum:geth:1.8.3'
+    compile(name: "geth", ext:"aar")
 }
