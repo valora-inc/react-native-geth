@@ -18,6 +18,7 @@ import type {
  * @param {string} config.nodeDir Data directory for the databases and keystore
  * @param {string} config.keyStoreDir Directory for the keystore (default = inside the datadir)
  * @param {string} config.enodes Comma separated enode URLs for P2P discovery bootstrap
+ * @param {boolean} config.useLightweightKDF Use less secure but faster KDF
  */
 class Geth {
   config: ?NodeConfig
