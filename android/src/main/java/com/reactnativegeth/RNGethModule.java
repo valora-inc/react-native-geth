@@ -89,16 +89,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
-            if (config.hasKey("useLightweightKDF")) {
-                Log.w("RNGethLog", "Has useLightweightKDF parameters");
-                if (config.getBoolean("useLightweightKDF")) {
-                    Log.w("RNGethLog", "useLightweightKDF is true");
-                } else {
-                    Log.w("RNGethLog", "useLightweightKDF is false");
-                }
-            } else {
-                Log.w("RNGethLog", "Does not have useLightweightKDF parameter");
-            }
             Node nd = Geth.newNode(getReactApplicationContext()
                     .getFilesDir() + "/" + nodeDir, nc);
             KeyStore ks = new KeyStore(getReactApplicationContext()
