@@ -22,6 +22,8 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
+import org.ethereum.geth.EnodeV4;
+import org.ethereum.geth.EnodesV4;
 import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
@@ -82,6 +84,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
                 GethHolder.writeStaticNodesFile(config.getString("enodes"));
+            if (config.hasKey("bootnodes")) {
+                EnodesV4 enodes = new EnodesV4();
+                EnodeV4 enode = new Enode(config.getString("bootnodes"));
+                enodes.append(enode);
+                nc.setBootnodes(enodes);
+            }
             if (config.hasKey("networkID")) nc.setEthereumNetworkID(config.getInt("networkID"));
             if (config.hasKey("maxPeers")) nc.setMaxPeers(config.getInt("maxPeers"));
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
@@ -369,7 +377,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 GethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR, 
+                promise.reject(DELETE_ACCOUNT_ERROR,
                      "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
