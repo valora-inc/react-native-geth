@@ -6,7 +6,8 @@ type NodeConfig = ? {
   genesis?: string,
   nodeDir?: string,
   keyStoreDir?: string,
-  enodes?: string
+  enodes?: string,
+  noDiscovery?: boolean,
   syncMode?: number
 }
 

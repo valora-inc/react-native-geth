@@ -89,6 +89,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
+            if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getInt("noDiscovery"))
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
                 int logLevel = 3;  // Info
@@ -369,7 +370,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 GethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR, 
+                promise.reject(DELETE_ACCOUNT_ERROR,
                      "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
