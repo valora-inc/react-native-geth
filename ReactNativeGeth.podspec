@@ -12,8 +12,9 @@ Pod::Spec.new do |s|
     s.platform     = :ios, "9.0"
 
     s.source       = { :git => "https://github.com/YsnKsy/react-native-geth" }
-    s.source_files  = "ios/*.{h,m}"
+    s.source_files  = "ios/*.{h,m,swift}"
     s.requires_arc = true
 
     s.dependency 'Geth'
+    s.dependency 'React'
 end
