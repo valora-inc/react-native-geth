@@ -9,21 +9,48 @@ import Foundation
 import Geth
 
 @objc(ReactNativeGeth)
-class ReactNativeGeth: NSObject {
+class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
+    func onError(_ failure: String!) {
+        NSLog("@", failure)
+    }
+    
     private var TAG: String = "Geth"
-    private var ETH_DIR: String = ".ethereum"
+    private var ETH_DIR: String = ".appintegration"
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
     private var geth_node: NodeRunner
-    private var datadir = NSHomeDirectory()
+    private var datadir = NSHomeDirectory() + "/Documents"
 
     override init() {
         self.ctx = GethNewContext()
         self.geth_node = NodeRunner()
+        super.init()
     }
+    
+    @objc(supportedEvents)
+    override func supportedEvents() -> [String]! {
+        return ["GethNewHead"]
+    }
+    
     @objc(getName)
     func getName() -> String {
         return TAG
+    }
+    
+    func convertToDictionary(from text: String) throws -> [String: String] {
+        guard let data = text.data(using: .utf8) else { return [:] }
+        let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
+        return anyResult as? [String: String] ?? [:]
+    }
+    
+    func onNewHead(_ header: GethHeader) {
+        do {
+            let json = try header.encodeJSON()
+            let dict = try self.convertToDictionary(from: json)
+            self.sendEvent(withName: "GethNewHead", body:dict)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+        }
     }
     
     /**
@@ -60,6 +87,8 @@ class ReactNativeGeth: NSObject {
                 keyStoreDir = config.value(forKey: "keyStoreDir") as! String
             }
             
+            nodeconfig.setSyncMode(4)
+            
             let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
             let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
@@ -90,7 +119,21 @@ class ReactNativeGeth: NSObject {
                 try geth_node.getNode()?.start()
                 result = true
             }
+            
             resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+    
+    @objc(subscribeNewHead:rejecter:)
+    func subscribeNewHead(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            if(geth_node.getNode() != nil) {
+                try geth_node.getNode()?.getEthereumClient().subscribeNewHead(self.ctx, handler: self, buffer: 16)
+            }
+            resolve([true] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)

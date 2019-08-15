@@ -14,10 +14,12 @@ class NodeRunner {
     private var nodeconf: GethNodeConfig?
     private var keyStore: GethKeyStore?
     
-    private let DATA_DIR = NSHomeDirectory()
-    private let ETH_DIR: String = ".ethereum"
+    private let DATA_DIR = NSHomeDirectory() + "/Documents"
+    private let ETH_DIR: String = ".appintegration"
     private var STATIC_NODES_FILES_PATH: String
     private let STATIC_NODES_FILES_NAME: String = "static-nodes.json"
+    
+    static var shared = NodeRunner()
     
     init() {
         self.nodeconf = GethNewNodeConfig()
@@ -34,6 +36,7 @@ class NodeRunner {
     
     func setNode(node: GethNode) -> Void {
         self.node = node
+
     }
     
     func setNodeConfig(nc: GethNodeConfig) -> Void {
