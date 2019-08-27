@@ -41,7 +41,10 @@
 		"commands": {
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
 		}
-	},
+  },
+  "resolutions": {
+    "**/eslint-utils": "^1.4.1"
+  },
 	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
 	"license": "MIT",
 	"keywords": [
