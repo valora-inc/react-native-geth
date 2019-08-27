@@ -16,7 +16,7 @@
 		"babel-jest": "^24.8.0",
 		"babel-preset-flow": "^6.23.0",
 		"babel-preset-react-native": "^4.0.1",
-		"eslint": "^6.1.0",
+		"eslint": "^6.2.2",
 		"eslint-config-airbnb": "^16.1.0",
 		"eslint-import-resolver-node": "^0.3.1",
 		"eslint-plugin-flowtype": "^3.12.1",
@@ -41,9 +41,6 @@
 		"commands": {
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
 		}
-  },
-  "resolutions": {
-    "**/eslint-utils": "^1.4.1"
   },
 	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
 	"license": "MIT",
