@@ -7,7 +7,7 @@ type NodeConfig = ? {
   nodeDir?: string,
   keyStoreDir?: string,
   enodes?: string,
-  noDiscovery?: boolean,
+  peerDiscovery?: boolean,
   syncMode?: number
 }
 
