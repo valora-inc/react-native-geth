@@ -13,20 +13,21 @@
 		"react-native-swift": "^1.2.1"
 	},
 	"devDependencies": {
-		"babel-eslint": "^8.0.3",
-		"babel-jest": "^21.2.0",
+		"babel-eslint": "^10.0.2",
+		"babel-jest": "^24.8.0",
 		"babel-preset-flow": "^6.23.0",
-		"babel-preset-react-native": "4.0.0",
-		"eslint": "^4.13.1",
+		"babel-preset-react-native": "^4.0.1",
+		"eslint": "^6.2.2",
 		"eslint-config-airbnb": "^16.1.0",
 		"eslint-import-resolver-node": "^0.3.1",
-		"eslint-plugin-flowtype": "^2.40.1",
+		"eslint-plugin-flowtype": "^3.12.1",
 		"eslint-plugin-import": "^2.8.0",
 		"eslint-plugin-jsx-a11y": "^6.0.3",
 		"eslint-plugin-react": "^7.4.0",
 		"eslint-plugin-react-native": "^3.2.0",
 		"flow-bin": "^0.61.0",
-		"jest": "^21.2.1"
+		"http-signature": "^1.2.0",
+		"jest": "^24.9.0"
 	},
 	"jest": {
 		"preset": "react-native"
@@ -41,7 +42,7 @@
 		"commands": {
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
 		}
-	},
+  },
 	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
 	"license": "MIT",
 	"keywords": [
