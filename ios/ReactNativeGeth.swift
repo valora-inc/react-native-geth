@@ -87,7 +87,7 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 keyStoreDir = config.value(forKey: "keyStoreDir") as! String
             }
             
-            nodeconfig.setSyncMode(4)
+            nodeconfig.setSyncMode(5)
             
             let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
             let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
