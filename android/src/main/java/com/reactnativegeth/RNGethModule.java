@@ -90,6 +90,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             if (config.hasKey("peerDiscovery")) nc.setPeerDiscovery(config.getBoolean("peerDiscovery"));
+            if (config.hasKey("bootstrapEnodeUrls")) nc.setBootstrapEnodeUrls(config.getArray("bootstrapEnodeUrls"));
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
                 int logLevel = 3;  // Info
