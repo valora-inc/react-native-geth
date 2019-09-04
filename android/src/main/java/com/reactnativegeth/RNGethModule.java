@@ -10,6 +10,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -22,6 +23,8 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
+import org.ethereum.geth.Enode;
+import org.ethereum.geth.Enodes;
 import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
@@ -90,7 +93,16 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             if (config.hasKey("peerDiscovery")) nc.setPeerDiscovery(config.getBoolean("peerDiscovery"));
-            if (config.hasKey("bootstrapEnodeUrls")) nc.setBootstrapEnodeUrls(config.getArray("bootstrapEnodeUrls"));
+            if (config.hasKey("bootstrapEnodeUrls")) {
+              ReadableArray enodeUrls = config.getArray("bootstrapEnodeUrls");
+              int enodeUrlSize = enodeUrls.size();
+              Enodes enodes = new Enodes(enodeUrlSize);
+              for (int i = 0; i < enodeUrlSize; i++) {
+                Enode enode = new Enode(enodeUrls.getString(i));
+                enodes.set(i, enode);
+              }
+              nc.setBootstrapNodes(enodes);
+            }
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
                 int logLevel = 3;  // Info
