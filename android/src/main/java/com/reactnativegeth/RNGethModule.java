@@ -95,7 +95,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("peerDiscovery")) nc.setPeerDiscovery(config.getBoolean("peerDiscovery"));
             if (config.hasKey("bootnodeEnodes")) {
               ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
-              int enodesSize = enodes.size();
+              int enodesSize = bootnodeEnodes.size();
               Enodes enodes = new Enodes(enodesSize);
               for (int i = 0; i < enodesSize; i++) {
                 Enode enode = new Enode(bootnodeEnodes.getString(i));
