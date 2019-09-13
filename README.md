@@ -75,12 +75,18 @@ const PrivateEth = async () => {
   }`
 
   const config = {
+    "bootnodeEnodes": [ // --bootnodesv5 / Enodes of v5 bootnodes for p2p discovery
+      "enode://XXXX@X[::]:XXXX",
+      "enode://YYYY@Y[::]:YYYY"
+    ],
     "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
     "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
     "genesis": genesis, // genesis.json file
     "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
     "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
-    "enodes": "enode://XXXX@X[::]:XXXX" // --bootnodes / Comma separated enode URLs for P2P discovery bootstrap
+    "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
+    "peerDiscovery": true, // opposite of --nodiscover / determines if the node will participate in p2p discovery
+    "syncMode": 5 // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
   }
 
   const geth = new Geth(config)
@@ -125,12 +131,15 @@ Geth object
 **Parameters**
 
 -   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)**
+    -   `config.bootnodeEnodes` **[array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)** Enode URLs for P2P discovery bootstrap
     -   `config.chainID` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
     -   `config.maxPeers` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Maximum number of network peers (network disabled if set to 0) (default: 25)
     -   `config.genesis` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** genesis.json file
     -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Data directory for the databases and keystore
     -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Directory for the keystore (default = inside the datadir)
-    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs for P2P discovery bootstrap
+    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs of static nodes
+    -   `config.peerDiscovery` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Determines if the node will participate in p2p discovery
+    -   `config.syncMode` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
 
 ### start
 

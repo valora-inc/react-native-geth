@@ -1,7 +1,7 @@
 // @flow
 
 type NodeConfig = ? {
-  bootstrapEnodeUrls?: string[],
+  bootnodeEnodes?: string[],
   networkID?: number,
   maxPeers?: number,
   genesis?: string,

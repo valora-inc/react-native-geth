@@ -93,17 +93,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             if (config.hasKey("peerDiscovery")) nc.setPeerDiscovery(config.getBoolean("peerDiscovery"));
-            if (config.hasKey("bootstrapEnodeUrls")) {
-              ReadableArray enodeUrls = config.getArray("bootstrapEnodeUrls");
-              int enodeUrlSize = enodeUrls.size();
-              Enodes enodes = new Enodes(enodeUrlSize);
-              for (int i = 0; i < enodeUrlSize; i++) {
-                Log.d("GETH", "Doing " + i + " url " + enodeUrls.getString(i));
-                Enode enode = new Enode(enodeUrls.getString(i));
+            if (config.hasKey("bootnodeEnodes")) {
+              ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
+              int enodesSize = enodes.size();
+              Enodes enodes = new Enodes(enodesSize);
+              for (int i = 0; i < enodesSize; i++) {
+                Enode enode = new Enode(bootnodeEnodes.getString(i));
                 enodes.set(i, enode);
               }
               nc.setBootstrapNodes(enodes);
-              Log.d("GETH", "Set bootstrap nodes");
             }
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
