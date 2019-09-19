@@ -61,30 +61,24 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Return true if created and configured node
      */
     @objc(nodeConfig:resolver:rejecter:)
-    func nodeConfig(config: NSObject, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func nodeConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
-            var nodeDir: String = ETH_DIR
-            var keyStoreDir: String = KEY_STORE_DIR
+            let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
+            let keyStoreDir: String = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
             var error: NSError?
             
-            if(config.value(forKey: "enodes") != nil) {
-                geth_node.writeStaticNodesFile(enodes: config.value(forKey: "enodes") as! String)
+            if let enodes = config?["enodes"] as? String {
+                geth_node.writeStaticNodesFile(enodes: enodes)
             }
-            if((config.value(forKey: "networkID")) != nil) {
-                nodeconfig.setEthereumNetworkID(config.value(forKey: "networkID") as! Int64)
+            if let networkID = config?["networkID"] as? Int64 {
+                nodeconfig.setEthereumNetworkID(networkID)
             }
-            if(config.value(forKey: "maxPeers") != nil) {
-                nodeconfig.setMaxPeers(config.value(forKey: "maxPeers") as! Int)
+            if let maxPeers = config?["maxPeers"] as? Int {
+                nodeconfig.setMaxPeers(maxPeers)
             }
-            if(config.value(forKey: "genesis") != nil) {
-                nodeconfig.setEthereumGenesis(config.value(forKey: "genesis") as! String)
-            }
-            if(config.value(forKey: "nodeDir") != nil) {
-                nodeDir = config.value(forKey: "nodeDir") as! String
-            }
-            if(config.value(forKey: "keyStoreDir") != nil) {
-                keyStoreDir = config.value(forKey: "keyStoreDir") as! String
+            if let genesis = config?["genesis"] as? String {
+                nodeconfig.setEthereumGenesis(genesis)
             }
             
             nodeconfig.setSyncMode(5)
