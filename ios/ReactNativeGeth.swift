@@ -15,7 +15,7 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
     
     private var TAG: String = "Geth"
-    private var ETH_DIR: String = ".appintegration"
+    private var ETH_DIR: String = ".ethereum"
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
     private var geth_node: NodeRunner
