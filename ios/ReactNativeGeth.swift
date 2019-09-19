@@ -80,9 +80,13 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             if let genesis = config?["genesis"] as? String {
                 nodeconfig.setEthereumGenesis(genesis)
             }
-            
-            nodeconfig.setSyncMode(5)
-            
+            if let syncMode = config?["syncMode"] as? Int {
+                nodeconfig.setSyncMode(syncMode)
+            }
+            if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
+                nodeconfig.setUseLightweightKDF(useLightweightKDF)
+            }
+
             let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
             let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
