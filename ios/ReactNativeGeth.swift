@@ -26,6 +26,15 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         self.geth_node = NodeRunner()
         super.init()
     }
+
+    // Called when React Native is reloaded
+    @objc func invalidate() {
+        do {
+            try geth_node.getNode()?.stop()
+        } catch {
+            NSLog("Failed stopping geth node: \(error)")
+        }
+    }
     
     @objc(supportedEvents)
     override func supportedEvents() -> [String]! {
@@ -44,6 +53,12 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
     
     func onNewHead(_ header: GethHeader) {
+        guard bridge != nil else {
+            // Don't call sendEvent when the bridge is not set
+            // this happens when RN is reloaded and this module is unregistered
+            return
+        }
+
         do {
             let json = try header.encodeJSON()
             let dict = try self.convertToDictionary(from: json)
