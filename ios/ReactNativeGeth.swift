@@ -27,6 +27,12 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         super.init()
     }
 
+    // Not yet sure we actually need main queue setup,
+    // but do it for now to be on the safe side :D
+    override static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
+
     // Called when React Native is reloaded
     @objc func invalidate() {
         do {
