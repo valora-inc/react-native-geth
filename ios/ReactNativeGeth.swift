@@ -9,21 +9,69 @@ import Foundation
 import Geth
 
 @objc(ReactNativeGeth)
-class ReactNativeGeth: NSObject {
+class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
+    func onError(_ failure: String!) {
+        NSLog("@", failure)
+    }
+    
     private var TAG: String = "Geth"
     private var ETH_DIR: String = ".ethereum"
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
     private var geth_node: NodeRunner
-    private var datadir = NSHomeDirectory()
+    private var datadir = NSHomeDirectory() + "/Documents"
 
     override init() {
         self.ctx = GethNewContext()
         self.geth_node = NodeRunner()
+        super.init()
     }
+
+    // Not yet sure we actually need main queue setup,
+    // but do it for now to be on the safe side :D
+    override static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
+
+    // Called when React Native is reloaded
+    @objc func invalidate() {
+        do {
+            try geth_node.getNode()?.stop()
+        } catch {
+            NSLog("Failed stopping geth node: \(error)")
+        }
+    }
+    
+    @objc(supportedEvents)
+    override func supportedEvents() -> [String]! {
+        return ["GethNewHead"]
+    }
+    
     @objc(getName)
     func getName() -> String {
         return TAG
+    }
+    
+    func convertToDictionary(from text: String) throws -> [String: String] {
+        guard let data = text.data(using: .utf8) else { return [:] }
+        let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
+        return anyResult as? [String: String] ?? [:]
+    }
+    
+    func onNewHead(_ header: GethHeader) {
+        guard bridge != nil else {
+            // Don't call sendEvent when the bridge is not set
+            // this happens when RN is reloaded and this module is unregistered
+            return
+        }
+
+        do {
+            let json = try header.encodeJSON()
+            let dict = try self.convertToDictionary(from: json)
+            self.sendEvent(withName: "GethNewHead", body:dict)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+        }
     }
     
     /**
@@ -34,32 +82,32 @@ class ReactNativeGeth: NSObject {
      * @return Return true if created and configured node
      */
     @objc(nodeConfig:resolver:rejecter:)
-    func nodeConfig(config: NSObject, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func nodeConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
-            var nodeDir: String = ETH_DIR
-            var keyStoreDir: String = KEY_STORE_DIR
+            let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
+            let keyStoreDir: String = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
             var error: NSError?
             
-            if(config.value(forKey: "enodes") != nil) {
-                geth_node.writeStaticNodesFile(enodes: config.value(forKey: "enodes") as! String)
+            if let enodes = config?["enodes"] as? String {
+                geth_node.writeStaticNodesFile(enodes: enodes)
             }
-            if((config.value(forKey: "networkID")) != nil) {
-                nodeconfig.setEthereumNetworkID(config.value(forKey: "networkID") as! Int64)
+            if let networkID = config?["networkID"] as? Int64 {
+                nodeconfig.setEthereumNetworkID(networkID)
             }
-            if(config.value(forKey: "maxPeers") != nil) {
-                nodeconfig.setMaxPeers(config.value(forKey: "maxPeers") as! Int)
+            if let maxPeers = config?["maxPeers"] as? Int {
+                nodeconfig.setMaxPeers(maxPeers)
             }
-            if(config.value(forKey: "genesis") != nil) {
-                nodeconfig.setEthereumGenesis(config.value(forKey: "genesis") as! String)
+            if let genesis = config?["genesis"] as? String {
+                nodeconfig.setEthereumGenesis(genesis)
             }
-            if(config.value(forKey: "nodeDir") != nil) {
-                nodeDir = config.value(forKey: "nodeDir") as! String
+            if let syncMode = config?["syncMode"] as? Int {
+                nodeconfig.setSyncMode(syncMode)
             }
-            if(config.value(forKey: "keyStoreDir") != nil) {
-                keyStoreDir = config.value(forKey: "keyStoreDir") as! String
+            if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
+                nodeconfig.setUseLightweightKDF(useLightweightKDF)
             }
-            
+
             let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
             let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
             if error != nil {
@@ -90,7 +138,21 @@ class ReactNativeGeth: NSObject {
                 try geth_node.getNode()?.start()
                 result = true
             }
+            
             resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+    
+    @objc(subscribeNewHead:rejecter:)
+    func subscribeNewHead(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            if(geth_node.getNode() != nil) {
+                try geth_node.getNode()?.getEthereumClient().subscribeNewHead(self.ctx, handler: self, buffer: 16)
+            }
+            resolve([true] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)

@@ -1,6 +1,7 @@
 {
 	"name": "react-native-geth",
 	"version": "0.1.0-development",
+	"description": "React Native module to run a light client",
 	"main": "src/geth",
 	"scripts": {
 		"test": "eslint src && flow",
