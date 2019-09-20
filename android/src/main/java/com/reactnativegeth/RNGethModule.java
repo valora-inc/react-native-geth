@@ -36,7 +36,7 @@ import org.ethereum.geth.Strings;
 
 public class RNGethModule extends ReactContextBaseJavaModule {
 
-    private static final String TAG = "Geth";
+    private static final String TAG = "RNGeth";
     private static final String CONFIG_NODE_ERROR = "CONFIG_NODE_ERROR";
     private static final String START_NODE_ERROR = "START_NODE_ERROR";
     private static final String STOP_NODE_ERROR = "STOP_NODE_ERROR";

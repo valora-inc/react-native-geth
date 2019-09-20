@@ -14,7 +14,6 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         NSLog("@", failure)
     }
     
-    private var TAG: String = "Geth"
     private var ETH_DIR: String = ".ethereum"
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
@@ -45,11 +44,6 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(supportedEvents)
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
-    }
-    
-    @objc(getName)
-    func getName() -> String {
-        return TAG
     }
     
     func convertToDictionary(from text: String) throws -> [String: String] {

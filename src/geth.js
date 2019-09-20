@@ -16,10 +16,7 @@ import type { NodeConfig, Account, ListAccounts, SyncProgress, GethNativeModule 
  */
 class Geth {
   config: ?NodeConfig
-  geth: GethNativeModule = Platform.select({
-    ios: NativeModules.ReactNativeGeth,
-    android: NativeModules.Geth,
-  })
+  geth: GethNativeModule = NativeModules.RNGeth
 
   constructor(config: NodeConfig): void {
     this.config = config ? config : {}
