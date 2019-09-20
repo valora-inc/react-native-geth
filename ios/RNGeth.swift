@@ -1,6 +1,6 @@
 //
-//  ReactNativeGeth.swift
-//  ReactNativeGeth
+//  RNGeth.swift
+//  RNGeth
 //
 //  Created by 0mkar on 04/04/18.
 //
@@ -8,8 +8,8 @@
 import Foundation
 import Geth
 
-@objc(ReactNativeGeth)
-class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
+@objc(RNGeth)
+class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func onError(_ failure: String!) {
         NSLog("@", failure)
     }
