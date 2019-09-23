@@ -85,7 +85,7 @@ const PrivateEth = async () => {
     "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
     "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
     "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
-    "peerDiscovery": true, // opposite of --nodiscover / determines if the node will participate in p2p discovery (v5)
+    "noDiscovery": false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
     "syncMode": 5 // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
   }
 
@@ -138,7 +138,7 @@ Geth object
     -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Data directory for the databases and keystore
     -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Directory for the keystore (default = inside the datadir)
     -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs of static nodes
-    -   `config.peerDiscovery` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Determines if the node will participate in p2p discovery (v5)
+    -   `config.noDiscovery` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Determines if the node will not participate in p2p discovery (v5)
     -   `config.syncMode` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
 
 ### start

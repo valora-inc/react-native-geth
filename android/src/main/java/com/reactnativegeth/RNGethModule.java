@@ -92,7 +92,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
-            if (config.hasKey("peerDiscovery")) nc.setPeerDiscovery(config.getBoolean("peerDiscovery"));
+            if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
             if (config.hasKey("bootnodeEnodes")) {
               ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
               int enodesSize = bootnodeEnodes.size();
