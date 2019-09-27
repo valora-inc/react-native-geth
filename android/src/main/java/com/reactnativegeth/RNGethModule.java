@@ -31,10 +31,12 @@ import org.ethereum.geth.Node;
 import org.ethereum.geth.NodeConfig;
 import org.ethereum.geth.SyncProgress;
 import org.ethereum.geth.Transaction;
+import org.ethereum.geth.NodeInfo;
+import org.ethereum.geth.Strings;
 
 public class RNGethModule extends ReactContextBaseJavaModule {
 
-    private static final String TAG = "Geth";
+    private static final String TAG = "RNGeth";
     private static final String CONFIG_NODE_ERROR = "CONFIG_NODE_ERROR";
     private static final String START_NODE_ERROR = "START_NODE_ERROR";
     private static final String STOP_NODE_ERROR = "STOP_NODE_ERROR";
@@ -392,7 +394,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (acc != null) {
                 byte[] key = GethHolder.getKeyStore()
                     .exportKey(acc, creationPassphrase, exportPassphrase);
-                promise.resolve(key);
+                promise.resolve(new String(key, "UTF-8"));
             } else {
                 promise.reject(EXPORT_KEY_ERROR, "call method setAccount('accountId') before");
             }
@@ -448,50 +450,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * Create and send transaction.
-     *
-     * @param passphrase Passphrase
-     * @param nonce      Account nonce (use -1 to use last known nonce)
-     * @param toAddress  Address destination
-     * @param amount     Amount
-     * @param gasLimit   Gas limit
-     * @param gasPrice   Gas price
-     * @param data
-     * @param promise    Promise
-     * @return Return String transaction
-     */
-    @ReactMethod
-    public void createAndSendTransaction(String passphrase, double nonce, String toAddress,
-                                         String amount, double gasLimit, double gasPrice,
-                                         String data, Promise promise) {
-        try {
-            Account acc = GethHolder.getAccount();
-            Address fromAddress = acc.getAddress();
-            BigInt chain = new BigInt(GethHolder.getNodeConfig().getEthereumNetworkID());
-            Context ctx = new Context();
-            BigInt bigIntAmount = new BigInt(0);
-            bigIntAmount.setString(amount, 10);
-            if (nonce == -1) nonce = GethHolder.getNode().getEthereumClient()
-                .getPendingNonceAt(ctx, fromAddress);
-            Transaction tx = new Transaction(
-                    (long) nonce,
-                    new Address(toAddress),
-                    bigIntAmount,
-                    (long) gasLimit,
-                    new BigInt((long) gasPrice),
-                    data.getBytes("UTF8"));
-            // Sign a transaction with a single authorization
-            Transaction signed = GethHolder.getKeyStore()
-                .signTxPassphrase(acc, passphrase, tx, chain);
-            // Send it out to the network.
-            GethHolder.getNode().getEthereumClient().sendTransaction(ctx, signed);
-            promise.resolve(tx.toString());
-        } catch (Exception e) {
-            promise.reject(NEW_TRANSACTION_ERROR, e);
-        }
-    }
-
-    /**
      * Retrieves the currently suggested gas price to allow a timely execution of a transaction.
      *
      * @param promise Promise
@@ -526,6 +484,21 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject(GET_NONCE_ERROR, e);
         }
+    }
+
+    @ReactMethod
+    public void getNodeInfo(Promise promise) {
+        WritableMap result = new WritableNativeMap();
+        NodeInfo nodeInfo = GethHolder.getNode().getNodeInfo();
+        result.putString("enode", nodeInfo.getEnode());
+        result.putString("id", nodeInfo.getID());
+        result.putString("ip", nodeInfo.getIP());
+        result.putString("listenerAddress", nodeInfo.getListenerAddress());
+        result.putString("name", nodeInfo.getName());
+        result.putString("protocols", nodeInfo.getProtocols().toString());
+        result.putDouble("discoveryPort", nodeInfo.getDiscoveryPort());
+        result.putDouble("listenerPort", nodeInfo.getListenerPort());
+        promise.resolve(result);
     }
 }
 

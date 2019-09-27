@@ -1,6 +1,6 @@
 //
-//  ReactNativeGeth.swift
-//  ReactNativeGeth
+//  RNGeth.swift
+//  RNGeth
 //
 //  Created by 0mkar on 04/04/18.
 //
@@ -8,13 +8,12 @@
 import Foundation
 import Geth
 
-@objc(ReactNativeGeth)
-class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
+@objc(RNGeth)
+class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func onError(_ failure: String!) {
         NSLog("@", failure)
     }
     
-    private var TAG: String = "Geth"
     private var ETH_DIR: String = ".ethereum"
     private var KEY_STORE_DIR: String = "keystore"
     private let ctx: GethContext
@@ -45,11 +44,6 @@ class ReactNativeGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(supportedEvents)
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
-    }
-    
-    @objc(getName)
-    func getName() -> String {
-        return TAG
     }
     
     func convertToDictionary(from text: String) throws -> [String: String] {

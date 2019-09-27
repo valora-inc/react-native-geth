@@ -1,5 +1,5 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface ReactNativeGeth : RCTEventEmitter <RCTBridgeModule>
+@interface RNGeth : RCTEventEmitter <RCTBridgeModule>
 @end
