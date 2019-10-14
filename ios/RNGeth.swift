@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Geth
+import CeloBlockchain
 
 struct RuntimeError: LocalizedError {
     let message: String
@@ -26,11 +26,11 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         NSLog("@", failure!)
     }
     
-    private var ETH_DIR: String = ".ethereum"
-    private var KEY_STORE_DIR: String = "keystore"
+    private let ETH_DIR: String = ".ethereum"
+    private let KEY_STORE_DIR: String = "keystore"
+    private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
     private let ctx: GethContext!
     private var geth_node: NodeRunner
-    private var datadir = NSHomeDirectory() + "/Documents"
 
     override init() {
         self.ctx = GethNewContext()
@@ -116,8 +116,24 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
                 nodeconfig.useLightweightKDF = useLightweightKDF
             }
+            if let ipcPath = config?["ipcPath"] as? String {
+                // Workaround gomobile objc binding bug for properties starting with a capital letter in the go source
+                // See https://github.com/golang/go/issues/32008
+                // Once that bug is fixed the assertion will fail and we can switch back to:
+                // nodeconfig.ipcPath = ipcPath
+                nodeconfig.setValue(ipcPath, forKey: "IPCPath")
+                assert(nodeconfig.ipcPath == ipcPath)
+            }
 
-            guard let node = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error) else {
+            let dataDir = DATA_DIR_PREFIX + "/" + nodeDir
+
+            // Switch to dataDir if we're using a relative ipc path
+            // This is to workaround the 104 chars path limit for unix domain socket
+            if nodeconfig.ipcPath.first == "." {
+                FileManager.default.changeCurrentDirectoryPath(dataDir)
+            }
+
+            guard let node = GethNewNode(dataDir, nodeconfig, &error) else {
                 throw error ?? RuntimeError("Unable to create geth node")
             }
             guard let keyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP) else {
