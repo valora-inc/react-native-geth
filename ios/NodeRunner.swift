@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Geth
+import CeloBlockchain
 
 class NodeRunner {
     private let ctx = GethNewContext()
@@ -14,7 +14,7 @@ class NodeRunner {
     private var nodeconf: GethNodeConfig?
     private var keyStore: GethKeyStore?
     
-    private let DATA_DIR = NSHomeDirectory()
+    private let DATA_DIR = NSHomeDirectory() + "/Documents"
     private let ETH_DIR: String = ".ethereum"
     private var STATIC_NODES_FILES_PATH: String
     private let STATIC_NODES_FILES_NAME: String = "static-nodes.json"
