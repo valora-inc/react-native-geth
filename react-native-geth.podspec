@@ -17,7 +17,4 @@ Pod::Spec.new do |s|
 
     s.dependency 'CeloBlockchain'
     s.dependency 'React'
-
-    s.libraries = 'bls_zexe'
-    s.xcconfig = { 'LIBRARY_SEARCH_PATHS' => '${PODS_ROOT}/../../../../node_modules/@celo/client/vendor/github.com/celo-org/bls-zexe/bls/target/universal/release' }
 end

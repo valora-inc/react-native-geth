@@ -6,19 +6,31 @@
 //
 
 import Foundation
-import Geth
+import CeloBlockchain
+
+struct RuntimeError: LocalizedError {
+    let message: String
+
+    init(_ message: String) {
+        self.message = message
+    }
+
+    public var errorDescription: String {
+        return message
+    }
+}
 
 @objc(RNGeth)
 class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
-    func onError(_ failure: String!) {
-        NSLog("@", failure)
+    func onError(_ failure: String?) {
+        NSLog("@", failure!)
     }
     
-    private var ETH_DIR: String = ".ethereum"
-    private var KEY_STORE_DIR: String = "keystore"
-    private let ctx: GethContext
+    private let ETH_DIR: String = ".ethereum"
+    private let KEY_STORE_DIR: String = "keystore"
+    private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
+    private let ctx: GethContext!
     private var geth_node: NodeRunner
-    private var datadir = NSHomeDirectory() + "/Documents"
 
     override init() {
         self.ctx = GethNewContext()
@@ -52,7 +64,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         return anyResult as? [String: String] ?? [:]
     }
     
-    func onNewHead(_ header: GethHeader) {
+    func onNewHead(_ header: GethHeader?) {
         guard bridge != nil else {
             // Don't call sendEvent when the bridge is not set
             // this happens when RN is reloaded and this module is unregistered
@@ -60,7 +72,10 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         }
 
         do {
-            let json = try header.encodeJSON()
+            var error: NSError?
+            guard let json = header?.encodeJSON(&error) else {
+                throw error ?? RuntimeError("Unable to encode geth header")
+            }
             let dict = try self.convertToDictionary(from: json)
             self.sendEvent(withName: "GethNewHead", body:dict)
         } catch let NSErr as NSError {
@@ -87,27 +102,44 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 geth_node.writeStaticNodesFile(enodes: enodes)
             }
             if let networkID = config?["networkID"] as? Int64 {
-                nodeconfig.setEthereumNetworkID(networkID)
+                nodeconfig.ethereumNetworkID = networkID
             }
             if let maxPeers = config?["maxPeers"] as? Int {
-                nodeconfig.setMaxPeers(maxPeers)
+                nodeconfig.maxPeers = maxPeers
             }
             if let genesis = config?["genesis"] as? String {
-                nodeconfig.setEthereumGenesis(genesis)
+                nodeconfig.ethereumGenesis = genesis
             }
             if let syncMode = config?["syncMode"] as? Int {
-                nodeconfig.setSyncMode(syncMode)
+                nodeconfig.syncMode = syncMode
             }
             if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
-                nodeconfig.setUseLightweightKDF(useLightweightKDF)
+                nodeconfig.useLightweightKDF = useLightweightKDF
+            }
+            if let ipcPath = config?["ipcPath"] as? String {
+                // Workaround gomobile objc binding bug for properties starting with a capital letter in the go source
+                // See https://github.com/golang/go/issues/32008
+                // Once that bug is fixed the assertion will fail and we can switch back to:
+                // nodeconfig.ipcPath = ipcPath
+                nodeconfig.setValue(ipcPath, forKey: "IPCPath")
+                assert(nodeconfig.ipcPath == ipcPath)
             }
 
-            let node: GethNode = GethNewNode(datadir + "/" + nodeDir, nodeconfig, &error)
-            let keyStore: GethKeyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP)
-            if error != nil {
-                reject(nil, nil, error)
-                return
+            let dataDir = DATA_DIR_PREFIX + "/" + nodeDir
+
+            // Switch to dataDir if we're using a relative ipc path
+            // This is to workaround the 104 chars path limit for unix domain socket
+            if nodeconfig.ipcPath.first == "." {
+                FileManager.default.changeCurrentDirectoryPath(dataDir)
             }
+
+            guard let node = GethNewNode(dataDir, nodeconfig, &error) else {
+                throw error ?? RuntimeError("Unable to create geth node")
+            }
+            guard let keyStore = GethNewKeyStore(keyStoreDir, GethLightScryptN, GethLightScryptP) else {
+                throw RuntimeError("Unable to create geth key store")
+            }
+
             geth_node.setNodeConfig(nc: nodeconfig)
             geth_node.setKeyStore(ks: keyStore)
             geth_node.setNode(node: node)

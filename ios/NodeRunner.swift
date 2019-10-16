@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Geth
+import CeloBlockchain
 
 class NodeRunner {
     private let ctx = GethNewContext()
