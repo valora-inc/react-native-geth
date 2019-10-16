@@ -10,6 +10,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -22,6 +23,8 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
+import org.ethereum.geth.Enode;
+import org.ethereum.geth.Enodes;
 import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
@@ -91,6 +94,17 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
+            if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
+            if (config.hasKey("bootnodeEnodes")) {
+              ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
+              int enodesSize = bootnodeEnodes.size();
+              Enodes enodes = new Enodes(enodesSize);
+              for (int i = 0; i < enodesSize; i++) {
+                Enode enode = new Enode(bootnodeEnodes.getString(i));
+                enodes.set(i, enode);
+              }
+              nc.setBootstrapNodes(enodes);
+            }
             if (config.hasKey("ipcPath")) nc.setIPCPath(config.getString("ipcPath"));
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
@@ -372,7 +386,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 GethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR, 
+                promise.reject(DELETE_ACCOUNT_ERROR,
                      "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
