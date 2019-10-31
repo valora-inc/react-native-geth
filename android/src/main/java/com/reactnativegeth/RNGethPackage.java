@@ -4,8 +4,6 @@ package com.reactnativegeth;
  * Created by yaska on 17-09-29.
  */
 
-import android.util.Log;
-
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
@@ -25,13 +23,11 @@ public class RNGethPackage implements ReactPackage {
     }
 
     public List<Class<? extends JavaScriptModule>> createJSModules() {
-        Log.w("RNGeth", "createJSModules");
         return Collections.emptyList();
     }
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        Log.w("RNGeth", "createViewManagers");
         return Collections.emptyList();
     }
 
