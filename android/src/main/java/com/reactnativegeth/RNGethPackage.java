@@ -16,6 +16,12 @@ import java.util.List;
 
 public class RNGethPackage implements ReactPackage {
 
+    private GethHolder gethHolder;
+
+    public RNGethPackage() {
+        this.gethHolder = new GethHolder();
+    }
+
     public List<Class<? extends JavaScriptModule>> createJSModules() {
         return Collections.emptyList();
     }
@@ -27,8 +33,9 @@ public class RNGethPackage implements ReactPackage {
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
+        gethHolder.setReactContext(reactContext);
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new RNGethModule(reactContext));
+        modules.add(new RNGethModule(reactContext, gethHolder));
         return modules;
     }
 
