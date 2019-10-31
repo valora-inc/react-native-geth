@@ -10,7 +10,6 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -23,8 +22,6 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
-import org.ethereum.geth.Enode;
-import org.ethereum.geth.Enodes;
 import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
@@ -60,11 +57,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String SUGGEST_GAS_PRICE_ERROR = "SUGGEST_GAS_PRICE_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
-    private GethHolder GethHolder;
 
-    public RNGethModule(ReactApplicationContext reactContext) {
+    private GethHolder gethHolder;
+
+    public RNGethModule(ReactApplicationContext reactContext, GethHolder gethHolder) {
         super(reactContext);
-        GethHolder = new GethHolder(reactContext);
+        this.gethHolder = gethHolder;
     }
 
     @Override
@@ -81,12 +79,19 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void nodeConfig(ReadableMap config, Promise promise) {
+        if (gethHolder.getNode() != null) {
+          Log.w(TAG, "RNGeth already has a node, skipping creation of a new one");
+          promise.resolve(true);
+          return;
+        }
+
         try {
-            NodeConfig nc = GethHolder.getNodeConfig();
+            Log.i(TAG, "Configuring node config");
+            NodeConfig nc = gethHolder.getNodeConfig();
             String nodeDir = ETH_DIR;
             String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
-                GethHolder.writeStaticNodesFile(config.getString("enodes"));
+                gethHolder.writeStaticNodesFile(config.getString("enodes"));
             if (config.hasKey("networkID")) nc.setEthereumNetworkID(config.getInt("networkID"));
             if (config.hasKey("maxPeers")) nc.setMaxPeers(config.getInt("maxPeers"));
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
@@ -94,17 +99,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
-            if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
-            if (config.hasKey("bootnodeEnodes")) {
-              ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
-              int enodesSize = bootnodeEnodes.size();
-              Enodes enodes = new Enodes(enodesSize);
-              for (int i = 0; i < enodesSize; i++) {
-                Enode enode = new Enode(bootnodeEnodes.getString(i));
-                enodes.set(i, enode);
-              }
-              nc.setBootstrapNodes(enodes);
-            }
             if (config.hasKey("ipcPath")) nc.setIPCPath(config.getString("ipcPath"));
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
@@ -114,15 +108,18 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 }
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
-            Node nd = Geth.newNode(getReactApplicationContext()
-                    .getFilesDir() + "/" + nodeDir, nc);
-            KeyStore ks = new KeyStore(getReactApplicationContext()
-                    .getFilesDir() + "/" + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
-            GethHolder.setNodeConfig(nc);
-            GethHolder.setKeyStore(ks);
-            GethHolder.setNode(nd);
+
+            Log.i(TAG, "Making a new Geth Node");
+            Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
+            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/" 
+                + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+            gethHolder.setNodeConfig(nc);
+            gethHolder.setKeyStore(ks);
+            gethHolder.setNode(nd);
+            Log.i(TAG, "Done creating and configuring new node");
             promise.resolve(true);
         } catch (Exception e) {
+            e.printStackTrace();
             promise.reject(CONFIG_NODE_ERROR, e);
         }
     }
@@ -137,12 +134,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void startNode(Promise promise) {
         Boolean result = false;
         try {
-            if (GethHolder.getNode() != null) {
-                GethHolder.getNode().start();
+            if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == false) {
+                Log.i(TAG, "Starting node");
+                gethHolder.getNode().start();
+                gethHolder.setNodeStarted(true);
                 result = true;
             }
             promise.resolve(result);
         } catch (Exception e) {
+            e.printStackTrace();
             promise.reject(START_NODE_ERROR, e);
         }
     }
@@ -157,8 +157,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void stopNode(Promise promise) {
         Boolean result = false;
         try {
-            if (GethHolder.getNode() != null) {
-                GethHolder.getNode().stop();
+            if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == true) {
+                Log.i(TAG, "Stopping node");
+                gethHolder.getNode().stop();
                 result = true;
             }
             promise.resolve(result);
@@ -177,10 +178,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void newAccount(String passphrase, Promise promise) {
         try {
-            Account acc = GethHolder.getKeyStore().newAccount(passphrase);
+            Account acc = gethHolder.getKeyStore().newAccount(passphrase);
             WritableMap newAccount = new WritableNativeMap();
             newAccount.putString("address", acc.getAddress().getHex());
-            newAccount.putDouble("account", GethHolder.getKeyStore().getAccounts().size() - 1);
+            newAccount.putDouble("account", gethHolder.getKeyStore().getAccounts().size() - 1);
             promise.resolve(newAccount);
         } catch (Exception e) {
             promise.reject(NEW_ACCOUNT_ERROR, e);
@@ -197,8 +198,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setAccount(Integer accID, Promise promise) {
         try {
-            Account acc = GethHolder.getKeyStore().getAccounts().get(accID);
-            GethHolder.setAccount(acc);
+            Account acc = gethHolder.getKeyStore().getAccounts().get(accID);
+            gethHolder.setAccount(acc);
             //accounts.set(0, acc);
             promise.resolve(true);
         } catch (Exception e) {
@@ -215,7 +216,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getAddress(Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             if (acc != null) {
                 Address address = acc.getAddress();
                 promise.resolve(address.getHex());
@@ -236,10 +237,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void balanceAccount(Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             if (acc != null) {
                 Context ctx = new Context();
-                BigInt balance = GethHolder.getNode().getEthereumClient()
+                BigInt balance = gethHolder.getNode().getEthereumClient()
                         .getBalanceAt(ctx, acc.getAddress(), -1);
                 promise.resolve(balance.toString());
             } else {
@@ -261,7 +262,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void balanceAt(String address, Promise promise) {
         try {
             Context ctx = new Context();
-            BigInt balance = GethHolder.getNode().getEthereumClient()
+            BigInt balance = gethHolder.getNode().getEthereumClient()
                 .getBalanceAt(ctx, new Address(address), -1);
             promise.resolve(balance.toString());
         } catch (Exception e) {
@@ -280,7 +281,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void syncProgress(Promise promise) {
         try {
             Context ctx = new Context();
-            SyncProgress sp = GethHolder.getNode().getEthereumClient().syncProgress(ctx);
+            SyncProgress sp = gethHolder.getNode().getEthereumClient().syncProgress(ctx);
             if (sp != null) {
                 WritableMap syncProgress = new WritableNativeMap();
                 syncProgress.putDouble("startingBlock", sp.getStartingBlock());
@@ -308,7 +309,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             NewHeadHandler handler = new NewHeadHandler() {
                 @Override
                 public void onError(String error) {
-                    Log.e("GETH", "Error emitting new head event: " + error);
+                    Log.e(TAG, "Error emitting new head event: " + error);
                 }
 
                 @Override
@@ -334,6 +335,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                     headerMap.putString("nounce", header.getNonce().getHex());
                     headerMap.putString("hash", header.getHash().getHex());
                     headerMap.putArray("extra", extraArray);
+
                     getReactApplicationContext()
                         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                             .emit("GethNewHead", headerMap);
@@ -341,7 +343,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             };
 
             Context ctx = new Context();
-            GethHolder.getNode().getEthereumClient().subscribeNewHead(ctx, handler, 16);
+            Log.i(TAG, "Subscribing to new head");
+            gethHolder.getNode().getEthereumClient().subscribeNewHead(ctx, handler, 16);
             promise.resolve(true);
         } catch (Exception e) {
             promise.reject(SUBSCRIBE_NEW_HEAD_ERROR, e);
@@ -359,9 +362,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void updateAccount(String oldPassphrase, String newPassphrase, Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             if (acc != null) {
-                GethHolder.getKeyStore().updateAccount(acc, oldPassphrase, newPassphrase);
+                gethHolder.getKeyStore().updateAccount(acc, oldPassphrase, newPassphrase);
                 promise.resolve(true);
             } else {
                 promise.reject(UPDATE_ACCOUNT_ERROR, "call method setAccount() before");
@@ -381,12 +384,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void deleteAccount(String passphrase, Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             if (acc != null) {
-                GethHolder.getKeyStore().deleteAccount(acc, passphrase);
+                gethHolder.getKeyStore().deleteAccount(acc, passphrase);
                 promise.resolve(true);
             } else {
-                promise.reject(DELETE_ACCOUNT_ERROR,
+                promise.reject(DELETE_ACCOUNT_ERROR, 
                      "call method setAccount('accountId') before");
             }
         } catch (Exception e) {
@@ -405,9 +408,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void exportKey(String creationPassphrase, String exportPassphrase, Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             if (acc != null) {
-                byte[] key = GethHolder.getKeyStore()
+                byte[] key = gethHolder.getKeyStore()
                     .exportKey(acc, creationPassphrase, exportPassphrase);
                 promise.resolve(new String(key, "UTF-8"));
             } else {
@@ -430,7 +433,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void importKey(byte[] key, String oldPassphrase, String newPassphrase, Promise promise) {
         try {
-            Account acc = GethHolder.getKeyStore().importKey(key, oldPassphrase, newPassphrase);
+            Account acc = gethHolder.getKeyStore().importKey(key, oldPassphrase, newPassphrase);
             promise.resolve(acc);
         } catch (Exception e) {
             promise.reject(IMPORT_KEY_ERROR, e);
@@ -447,7 +450,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void listAccounts(Promise promise) {
         try {
-            Accounts accounts = GethHolder.getKeyStore().getAccounts();
+            Accounts accounts = gethHolder.getKeyStore().getAccounts();
             Long nb = accounts.size();
             WritableArray listAccounts = new WritableNativeArray();
             if (nb > 0) {
@@ -474,7 +477,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void suggestGasPrice(Promise promise) {
         try {
             Context ctx = new Context();
-            long gasPrice = GethHolder.getNode().getEthereumClient().suggestGasPrice(ctx).getInt64();
+            long gasPrice = gethHolder.getNode().getEthereumClient().suggestGasPrice(ctx).getInt64();
             promise.resolve((double) gasPrice);
         } catch (Exception e) {
             promise.reject(SUGGEST_GAS_PRICE_ERROR, e);
@@ -491,10 +494,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getPendingNonce(Promise promise) {
         try {
-            Account acc = GethHolder.getAccount();
+            Account acc = gethHolder.getAccount();
             Context ctx = new Context();
             Address address = acc.getAddress();
-            long nonce = GethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
+            long nonce = gethHolder.getNode().getEthereumClient().getPendingNonceAt(ctx, address);
             promise.resolve((double) nonce);
         } catch (Exception e) {
             promise.reject(GET_NONCE_ERROR, e);
@@ -504,7 +507,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getNodeInfo(Promise promise) {
         WritableMap result = new WritableNativeMap();
-        NodeInfo nodeInfo = GethHolder.getNode().getNodeInfo();
+        NodeInfo nodeInfo = gethHolder.getNode().getNodeInfo();
         result.putString("enode", nodeInfo.getEnode());
         result.putString("id", nodeInfo.getID());
         result.putString("ip", nodeInfo.getIP());

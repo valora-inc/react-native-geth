@@ -21,18 +21,22 @@ public class GethHolder {
 
     private Account account;
     private Node node;
+    private boolean nodeStarted;
     private NodeConfig ndConfig;
     private KeyStore keyStore;
     private ReactApplicationContext reactContext;
 
-    protected GethHolder(ReactApplicationContext reactContext) {
-        this.reactContext = reactContext;
+    protected GethHolder() {
         try {
             NodeConfig nc = new NodeConfig();
             setNodeConfig(nc);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    protected void setReactContext(ReactApplicationContext reactContext) {
+        this.reactContext = reactContext;
     }
 
     protected NodeConfig getNodeConfig() {
@@ -49,6 +53,14 @@ public class GethHolder {
 
     protected void setNode(Node node) {
         this.node = node;
+    }
+
+    protected boolean getNodeStarted() {
+        return nodeStarted;
+    }
+
+    protected void setNodeStarted(boolean nodeStarted) {
+        this.nodeStarted = nodeStarted;
     }
 
     protected Account getAccount() {
