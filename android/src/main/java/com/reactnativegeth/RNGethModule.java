@@ -23,8 +23,8 @@ import org.ethereum.geth.Accounts;
 import org.ethereum.geth.Address;
 import org.ethereum.geth.BigInt;
 import org.ethereum.geth.Context;
-// import org.ethereum.geth.Enode;
-// import org.ethereum.geth.Enodes;
+import org.ethereum.geth.Enode;
+import org.ethereum.geth.Enodes;
 import org.ethereum.geth.EthereumClient;
 import org.ethereum.geth.Geth;
 import org.ethereum.geth.Header;
@@ -102,17 +102,17 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
-            // if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
-            // if (config.hasKey("bootnodeEnodes")) {
-            //   ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
-            //   int enodesSize = bootnodeEnodes.size();
-            //   Enodes enodes = new Enodes(enodesSize);
-            //   for (int i = 0; i < enodesSize; i++) {
-            //     Enode enode = new Enode(bootnodeEnodes.getString(i));
-            //     enodes.set(i, enode);
-            //   }
-            //   nc.setBootstrapNodes(enodes);
-            // }
+            if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
+            if (config.hasKey("bootnodeEnodes")) {
+              ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
+              int enodesSize = bootnodeEnodes.size();
+              Enodes enodes = new Enodes(enodesSize);
+              for (int i = 0; i < enodesSize; i++) {
+                Enode enode = new Enode(bootnodeEnodes.getString(i));
+                enodes.set(i, enode);
+              }
+              nc.setBootstrapNodes(enodes);
+            }
             if (config.hasKey("ipcPath")) nc.setIPCPath(config.getString("ipcPath"));
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
@@ -334,19 +334,14 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                         extraArray.pushInt(extraByte);
                     }
                     headerMap.putString("parentHash", header.getParentHash().getHex());
-                    headerMap.putString("uncleHash", header.getUncleHash().getHex());
                     headerMap.putString("coinbase", header.getCoinbase().getHex());
                     headerMap.putString("root", header.getRoot().getHex());
                     headerMap.putString("TxHash", header.getTxHash().getHex());
                     headerMap.putString("receiptHash", header.getReceiptHash().getHex());
                     headerMap.putString("bloom", header.getBloom().getHex());
-                    headerMap.putDouble("difficulty", (double) header.getDifficulty().getInt64());
                     headerMap.putDouble("number", (double) header.getNumber());
-                    headerMap.putDouble("gasLimit", (double) header.getGasLimit());
                     headerMap.putDouble("gasUsed", (double) header.getGasUsed());
                     headerMap.putDouble("time", (double) header.getTime());
-                    headerMap.putString("mixDigest", header.getMixDigest().getHex());
-                    headerMap.putString("nounce", header.getNonce().getHex());
                     headerMap.putString("hash", header.getHash().getHex());
                     headerMap.putArray("extra", extraArray);
 
