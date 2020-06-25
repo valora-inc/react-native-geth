@@ -44,7 +44,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String START_NODE_ERROR = "START_NODE_ERROR";
     private static final String STOP_NODE_ERROR = "STOP_NODE_ERROR";
     private static final String NEW_ACCOUNT_ERROR = "NEW_ACCOUNT_ERROR";
-    private static final String SET_ACCOUNT_ERROR = "SET_ACCOUNT_ERROR";
+    private static final String SET_ACCOUNT_ERƒROR = "SET_ACCOUNT_ERROR";
     private static final String GET_ACCOUNT_ERROR = "GET_ACCOUNT_ERROR";
     private static final String BALANCE_ACCOUNT_ERROR = "BALANCE_ACCOUNT_ERROR";
     private static final String BALANCE_AT_ERROR = "BALANCE_AT_ERROR";
@@ -82,8 +82,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void nodeConfig(ReadableMap config, Promise promise) {
-        if (gethHolder.getNode() != null) {
-          Log.w(TAG, "RNGeth already has a node, skipping creation of a new one");
+        if (gethHolder.getNodeStarted()) {
+          Log.w(TAG, "RNGeth already has a node *started*, skipping creation of a new one");
           promise.resolve(true);
           return;
         }
@@ -174,6 +174,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == true) {
                 Log.i(TAG, "Stopping node");
                 gethHolder.getNode().stop();
+                gethHolder.setNodeStarted(false);
                 result = true;
             }
             promise.resolve(result);
