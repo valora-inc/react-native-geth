@@ -44,7 +44,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String START_NODE_ERROR = "START_NODE_ERROR";
     private static final String STOP_NODE_ERROR = "STOP_NODE_ERROR";
     private static final String NEW_ACCOUNT_ERROR = "NEW_ACCOUNT_ERROR";
-    private static final String SET_ACCOUNT_ERƒROR = "SET_ACCOUNT_ERROR";
+    private static final String SET_ACCOUNT_ERROR = "SET_ACCOUNT_ERROR";
     private static final String GET_ACCOUNT_ERROR = "GET_ACCOUNT_ERROR";
     private static final String BALANCE_ACCOUNT_ERROR = "BALANCE_ACCOUNT_ERROR";
     private static final String BALANCE_AT_ERROR = "BALANCE_AT_ERROR";
@@ -82,7 +82,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void nodeConfig(ReadableMap config, Promise promise) {
-        if (gethHolder.getNodeStarted()) {
+        if (gethHolder.getNodeStarted() == true) {
           Log.w(TAG, "RNGeth already has a node *started*, skipping creation of a new one");
           promise.resolve(true);
           return;
@@ -91,15 +91,11 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             Log.i(TAG, "Configuring node config");
             NodeConfig nc = gethHolder.getNodeConfig();
-            String nodeDir = ETH_DIR;
-            String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
                 gethHolder.writeStaticNodesFile(config.getString("enodes"));
             if (config.hasKey("networkID")) nc.setEthereumNetworkID(config.getInt("networkID"));
             if (config.hasKey("maxPeers")) nc.setMaxPeers(config.getInt("maxPeers"));
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
-            if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
-            if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             // if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
@@ -123,14 +119,22 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
 
-            Log.i(TAG, "Making a new Geth Node");
-            Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
-            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/" 
-                + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+            if (gethHolder.getNode() == null) {
+                Log.i(TAG, "Making a new Geth Node");
+                String nodeDir = ETH_DIR;
+                String keyStoreDir = KEY_STORE_DIR;
+                if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
+                if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
+                Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
+                KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/" 
+                    + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+                gethHolder.setKeyStore(ks);
+                gethHolder.setNode(nd);
+                Log.i(TAG, "Done creating new node");
+            }
+
             gethHolder.setNodeConfig(nc);
-            gethHolder.setKeyStore(ks);
-            gethHolder.setNode(nd);
-            Log.i(TAG, "Done creating and configuring new node");
+            Log.i(TAG, "Done configuring node")
             promise.resolve(true);
         } catch (Exception e) {
             e.printStackTrace();
