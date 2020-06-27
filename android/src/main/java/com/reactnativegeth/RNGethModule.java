@@ -119,7 +119,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
 
-            if (gethHolder.getNode() == null) {
+            // if (gethHolder.getNode() == null) {
                 Log.i(TAG, "Making a new Geth Node");
                 String nodeDir = ETH_DIR;
                 String keyStoreDir = KEY_STORE_DIR;
@@ -131,10 +131,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 gethHolder.setKeyStore(ks);
                 gethHolder.setNode(nd);
                 Log.i(TAG, "Done creating new node");
-            }
+            // }
 
             gethHolder.setNodeConfig(nc);
-            Log.i(TAG, "Done configuring node")
+            Log.i(TAG, "Done configuring node");
             promise.resolve(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,7 +177,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == true) {
                 Log.i(TAG, "Stopping node");
-                gethHolder.getNode().stop();
+                gethHolder.getNode().close();
                 gethHolder.setNodeStarted(false);
                 result = true;
             }
