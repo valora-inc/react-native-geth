@@ -334,19 +334,14 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                         extraArray.pushInt(extraByte);
                     }
                     headerMap.putString("parentHash", header.getParentHash().getHex());
-                    headerMap.putString("uncleHash", header.getUncleHash().getHex());
                     headerMap.putString("coinbase", header.getCoinbase().getHex());
                     headerMap.putString("root", header.getRoot().getHex());
                     headerMap.putString("TxHash", header.getTxHash().getHex());
                     headerMap.putString("receiptHash", header.getReceiptHash().getHex());
                     headerMap.putString("bloom", header.getBloom().getHex());
-                    headerMap.putDouble("difficulty", (double) header.getDifficulty().getInt64());
                     headerMap.putDouble("number", (double) header.getNumber());
-                    headerMap.putDouble("gasLimit", (double) header.getGasLimit());
                     headerMap.putDouble("gasUsed", (double) header.getGasUsed());
                     headerMap.putDouble("time", (double) header.getTime());
-                    headerMap.putString("mixDigest", header.getMixDigest().getHex());
-                    headerMap.putString("nounce", header.getNonce().getHex());
                     headerMap.putString("hash", header.getHash().getHex());
                     headerMap.putArray("extra", extraArray);
 
