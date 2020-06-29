@@ -91,11 +91,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             Log.i(TAG, "Configuring node config");
             NodeConfig nc = gethHolder.getNodeConfig();
+            String nodeDir = ETH_DIR;
+            String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
                 gethHolder.writeStaticNodesFile(config.getString("enodes"));
             if (config.hasKey("networkID")) nc.setEthereumNetworkID(config.getInt("networkID"));
             if (config.hasKey("maxPeers")) nc.setMaxPeers(config.getInt("maxPeers"));
             if (config.hasKey("genesis")) nc.setEthereumGenesis(config.getString("genesis"));
+            if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
+            if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             if (config.hasKey("syncMode")) nc.setSyncMode(config.getInt("syncMode"));
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             // if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
@@ -120,19 +124,13 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             }
 
             Log.i(TAG, "Making a new Geth Node");
-            String nodeDir = ETH_DIR;
-            String keyStoreDir = KEY_STORE_DIR;
-            if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
-            if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
             Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
             KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/"
                 + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+            gethHolder.setNodeConfig(nc);
             gethHolder.setKeyStore(ks);
             gethHolder.setNode(nd);
-            Log.i(TAG, "Done creating new node");
-
-            gethHolder.setNodeConfig(nc);
-            Log.i(TAG, "Done configuring node");
+            Log.i(TAG, "Done creating and configuring node");
             promise.resolve(true);
         } catch (Exception e) {
             e.printStackTrace();
