@@ -119,19 +119,17 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
 
-            // if (gethHolder.getNode() == null) {
-                Log.i(TAG, "Making a new Geth Node");
-                String nodeDir = ETH_DIR;
-                String keyStoreDir = KEY_STORE_DIR;
-                if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
-                if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
-                Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
-                KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/" 
-                    + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
-                gethHolder.setKeyStore(ks);
-                gethHolder.setNode(nd);
-                Log.i(TAG, "Done creating new node");
-            // }
+            Log.i(TAG, "Making a new Geth Node");
+            String nodeDir = ETH_DIR;
+            String keyStoreDir = KEY_STORE_DIR;
+            if (config.hasKey("nodeDir")) nodeDir = config.getString("nodeDir");
+            if (config.hasKey("keyStoreDir")) keyStoreDir = config.getString("keyStoreDir");
+            Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
+            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/"
+                + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+            gethHolder.setKeyStore(ks);
+            gethHolder.setNode(nd);
+            Log.i(TAG, "Done creating new node");
 
             gethHolder.setNodeConfig(nc);
             Log.i(TAG, "Done configuring node");
