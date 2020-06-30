@@ -92,6 +92,12 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      */
     @objc(nodeConfig:resolver:rejecter:)
     func nodeConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        if (geth_node.getNodeStarted()){
+            NSLog("Node is already started, skipping creation");
+            resolve([true] as NSObject)
+            return;
+        }
+        
         do {
             let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
             let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
@@ -163,6 +169,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             if(geth_node.getNode() != nil) {
                 try geth_node.getNode()?.start()
                 result = true
+                geth_node.setNodeStarted(started: true)
             }
             
             resolve([result] as NSObject)
@@ -196,8 +203,9 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         do {
             var result: Bool = false
             if(geth_node.getNode() != nil) {
-                try geth_node.getNode()?.stop()
+                try geth_node.getNode()?.close()
                 result = true
+                geth_node.setNodeStarted(started: false)
             }
             resolve([result] as NSObject)
         } catch let NSErr as NSError {
