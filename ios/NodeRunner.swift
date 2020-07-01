@@ -13,6 +13,7 @@ class NodeRunner {
     private var node: GethNode?
     private var nodeconf: GethNodeConfig?
     private var keyStore: GethKeyStore?
+    private var nodeStarted: Bool = false
     
     private let DATA_DIR = NSHomeDirectory() + "/Documents"
     private let ETH_DIR: String = ".ethereum"
@@ -30,6 +31,14 @@ class NodeRunner {
     
     func getNode() -> GethNode? {
         return self.node
+    }
+
+    func getNodeStarted() -> Bool {
+        return self.nodeStarted
+    }
+
+    func setNodeStarted(started: Bool) {
+        self.nodeStarted = started
     }
     
     func setNode(node: GethNode) -> Void {
