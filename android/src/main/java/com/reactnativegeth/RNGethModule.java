@@ -82,8 +82,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void nodeConfig(ReadableMap config, Promise promise) {
-        if (gethHolder.getNode() != null) {
-          Log.w(TAG, "RNGeth already has a node, skipping creation of a new one");
+        if (gethHolder.getNodeStarted() == true) {
+          Log.w(TAG, "RNGeth already has a node *started*, skipping creation of a new one");
           promise.resolve(true);
           return;
         }
@@ -125,12 +125,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
 
             Log.i(TAG, "Making a new Geth Node");
             Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
-            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/" 
+            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/"
                 + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
             gethHolder.setNodeConfig(nc);
             gethHolder.setKeyStore(ks);
             gethHolder.setNode(nd);
-            Log.i(TAG, "Done creating and configuring new node");
+            Log.i(TAG, "Done creating and configuring node");
             promise.resolve(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,7 +173,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == true) {
                 Log.i(TAG, "Stopping node");
-                gethHolder.getNode().stop();
+                gethHolder.getNode().close();
+                gethHolder.setNodeStarted(false);
                 result = true;
             }
             promise.resolve(result);
