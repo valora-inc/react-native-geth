@@ -32,6 +32,8 @@ local.properties
 *.iml
 gradlew
 gradlew.bat
+android/.settings
+android/.project
 
 # node.js
 #
