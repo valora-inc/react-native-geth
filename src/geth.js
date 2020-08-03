@@ -1,6 +1,6 @@
 // @flow
 
-import { Platform, NativeModules } from 'react-native'
+import { NativeModules } from 'react-native'
 import type { NodeConfig, Account, ListAccounts, SyncProgress, GethNativeModule } from './types'
 
 /**

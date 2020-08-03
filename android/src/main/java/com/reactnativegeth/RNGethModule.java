@@ -122,6 +122,11 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 }
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
+            // HTTP RPC configurations
+            if (config.hasKey("httpHost")) nc.setHTTPHost(config.getString("httpHost"))
+            if (config.hasKey("httpPort")) nc.setHTTPPort(config.getString("httpPort"))
+            if (config.hasKey("httpVirtualHosts")) nc.setHTTPVirtualHosts(config.getString("httpVirtualHosts"))
+            if (config.hasKey("httpModules")) nc.setHTTPModules(config.getString("httpModules"))
 
             Log.i(TAG, "Making a new Geth Node");
             Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
