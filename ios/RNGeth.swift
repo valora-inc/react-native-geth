@@ -25,7 +25,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func onError(_ failure: String?) {
         NSLog("@", failure!)
     }
-    
+
     private let ETH_DIR: String = ".ethereum"
     private let KEY_STORE_DIR: String = "keystore"
     private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
@@ -52,18 +52,18 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("Failed stopping geth node: \(error)")
         }
     }
-    
+
     @objc(supportedEvents)
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
     }
-    
+
     func convertToDictionary(from text: String) throws -> [String: String] {
         guard let data = text.data(using: .utf8) else { return [:] }
         let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
         return anyResult as? [String: String] ?? [:]
     }
-    
+
     func onNewHead(_ header: GethHeader?) {
         guard bridge != nil else {
             // Don't call sendEvent when the bridge is not set
@@ -82,7 +82,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("@", NSErr)
         }
     }
-    
+
     /**
      * Creates and configures a new Geth node.
      *
@@ -97,13 +97,15 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             resolve([true] as NSObject)
             return;
         }
-        
+
+        NSLog("Starting up")
+
         do {
             let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
             let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
             let keyStoreDir: String = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
             var error: NSError?
-            
+
             if let enodes = config?["enodes"] as? String {
                 geth_node.writeStaticNodesFile(enodes: enodes)
             }
@@ -122,6 +124,38 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
                 nodeconfig.useLightweightKDF = useLightweightKDF
             }
+            if let noDiscovery = config?["noDiscovery"] as? Bool {
+                nodeconfig.noDiscovery = noDiscovery
+            }
+            if let bootnodeEnodes = config?["bootnodeEnodes"] as? [String] {
+                guard let enodes = GethEnodes(bootnodeEnodes.count) else {
+                    throw error ?? RuntimeError("Unable to create GethEnodes")
+                }
+//                let enodes = try GethEnodes(bootnodeEnodes.count)
+//                let enodes: GethEnodes = GethEnodes(5)
+//                let enodes: GethEnodes = GethEnodes(bootnodeEnodes.count) ?? <#default value#>
+                for i in 0..<bootnodeEnodes.count {
+//                    guard let enodes = GethEnodes(bootnodeEnodes.count) else {
+//                        throw error ?? RuntimeError("Unable to create GethEnodes")
+//                    }
+                    try enodes.set(i, enode: GethEnode(bootnodeEnodes[i]))
+                }
+                nodeconfig.bootstrapNodes = enodes
+            }
+
+            if let httpHost = config?["httpHost"] as? String {
+                nodeconfig.httpHost = httpHost
+            }
+            if let httpPort = config?["httpPort"] as? Int {
+                nodeconfig.httpPort = httpPort
+            }
+            if let httpVirtualHosts = config?["httpVirtualHosts"] as? String {
+                nodeconfig.httpVirtualHosts = httpVirtualHosts
+            }
+            if let httpModules = config?["httpModules"] as? String {
+                nodeconfig.httpModules = httpModules
+            }
+
             if let ipcPath = config?["ipcPath"] as? String {
                 // Workaround gomobile objc binding bug for properties starting with a capital letter in the go source
                 // See https://github.com/golang/go/issues/32008
@@ -129,6 +163,13 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 // nodeconfig.ipcPath = ipcPath
                 nodeconfig.setValue(ipcPath, forKey: "IPCPath")
                 assert(nodeconfig.ipcPath == ipcPath)
+            }
+            if let logFile = config?["logFile"] as? String {
+                var logLevel = 3  // Info
+                if let logFileLogLevel = config?["logFileLogLevel"] as? Int {
+                    logLevel = logFileLogLevel
+                }
+                GethSendLogsToFile(logFile, logLevel, "term")
             }
 
             let dataDir = DATA_DIR_PREFIX + "/" + nodeDir
@@ -155,7 +196,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NCErr)
         }
     }
-    
+
     /**
      * Start creates a live P2P node and starts running it.
      *
@@ -171,14 +212,14 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 result = true
                 geth_node.setNodeStarted(started: true)
             }
-            
+
             resolve([result] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
         }
     }
-    
+
     @objc(subscribeNewHead:rejecter:)
     func subscribeNewHead(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
@@ -191,7 +232,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NSErr)
         }
     }
-    
+
     /**
      * Terminates a running node along with all it's services.
      *

@@ -122,11 +122,12 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 }
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
-            // HTTP RPC configurations
-            if (config.hasKey("httpHost")) nc.setHTTPHost(config.getString("httpHost"))
-            if (config.hasKey("httpPort")) nc.setHTTPPort(config.getString("httpPort"))
-            if (config.hasKey("httpVirtualHosts")) nc.setHTTPVirtualHosts(config.getString("httpVirtualHosts"))
-            if (config.hasKey("httpModules")) nc.setHTTPModules(config.getString("httpModules"))
+
+            // HTTP RPC configurations - this should only be used for development & debugging
+            if (config.hasKey("httpHost")) nc.setHTTPHost(config.getString("httpHost"));
+            if (config.hasKey("httpPort")) nc.setHTTPPort(config.getInt("httpPort"));
+            if (config.hasKey("httpVirtualHosts")) nc.setHTTPVirtualHosts(config.getString("httpVirtualHosts"));
+            if (config.hasKey("httpModules")) nc.setHTTPModules(config.getString("httpModules"));
 
             Log.i(TAG, "Making a new Geth Node");
             Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
@@ -532,6 +533,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putDouble("discoveryPort", nodeInfo.getDiscoveryPort());
         result.putDouble("listenerPort", nodeInfo.getListenerPort());
         promise.resolve(result);
+    }
+
+    private String[] readableArrayToStringArray(ReadableArray array) {
+      int arraySize = array.size();
+      String[] strArray = new String[arraySize];
+      for (int i = 0; i < arraySize; i++) {
+        strArray[i] = array.getString(i);
+      }
+      return strArray;
     }
 }
 
