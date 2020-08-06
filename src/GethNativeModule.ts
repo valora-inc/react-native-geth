@@ -10,7 +10,7 @@ import {Account, NodeConfig} from "./types";
  * We should extend this list as we implement/start using more.
  */
 export interface GethNativeModule {
-    nodeConfig: (config: NodeConfig) => Promise<boolean>,
+    setConfig: (config: NodeConfig) => Promise<boolean>,
     startNode: () => Promise<boolean>,
     stopNode: () => Promise<boolean>,
     subscribeNewHead: () => Promise<boolean>,

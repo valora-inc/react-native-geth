@@ -252,8 +252,8 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @param promise Promise
      * @return Return true if created and configured node
      */
-    @objc(nodeConfig:resolver:rejecter:)
-    func nodeConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    @objc(setConfig:resolver:rejecter:)
+    func setConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         if (geth_node.getNodeStarted()){
             NSLog("Node is already started, skipping creation");
             resolve([true] as NSObject)

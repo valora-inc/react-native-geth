@@ -2,11 +2,15 @@ import { NativeModules } from 'react-native'
 import { NodeConfig, Account } from './types'
 import { GethNativeModule } from "./GethNativeModule";
 
-export default class RNGeth {
+export class RNGeth {
   geth: GethNativeModule = NativeModules.RNGeth
 
-  constructor(protected config: NodeConfig) {
-    this.geth.nodeConfig(this.config)
+  /**
+   * Configure and prepare the node
+   * @returns success status of operation
+   */
+  async setConfig(config: NodeConfig) {
+    return this.geth.setConfig(config)
   }
 
   /**
@@ -59,8 +63,8 @@ export default class RNGeth {
    * @returns the unlocked status of the account
    */
   async unlockAccount(account: string, passphrase: string, timeout: number): Promise<boolean> {
-    // In Go: time.Second = 1000000000
-    return await this.geth.unlockAccount(account, passphrase, timeout * 1000000000)
+    const oneSecond = 1000000000 // in Go, time.Second
+    return await this.geth.unlockAccount(account, passphrase, timeout * oneSecond)
   }
 
   /**

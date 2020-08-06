@@ -2,8 +2,8 @@
 	"name": "react-native-celo",
 	"version": "1.0.0",
 	"description": "React Native module to run a celo light client",
-	"main": "dist/geth.js",
-	"types": "dist/geth.d.ts",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"files": [ "/dist" ],
 	"scripts": {
       	"test": "echo \"Error: no test specified\" && exit 1",

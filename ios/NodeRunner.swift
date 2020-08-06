@@ -59,7 +59,7 @@ class NodeRunner {
     func findAccount(rawAddress: String) throws -> GethAccount? {
         var error: NSError?
         guard let address = GethNewAddressFromHex(rawAddress, &error) else {
-            throw error ?? RuntimeError("Invalid signer address")
+            throw error ?? RuntimeError("Invalid address")
         }
         
         if self.keyStore?.hasAddress(address) == false {
