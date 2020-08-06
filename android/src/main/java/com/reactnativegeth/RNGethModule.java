@@ -530,34 +530,3 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     }
 }
 
-/*
-   // return Account
-   @ReactMethod
-   public void importECDSAKey(Byte account, String password, Promise promise) {
-   }
-
-   // return Account
-   @ReactMethod
-   public void importPreSaleKey(Byte account, String password, Promise promise) {
-   }
-
-   // return void
-   @ReactMethod
-   public void lock(String account, Promise promise) {
-   }
-
-   // return void
-   @ReactMethod
-   public void unlock(String account, String password, Promise promise) {
-   }
-
-   // return void
-   @ReactMethod
-   public void timedUnlock(String account, String password, String time, Promise promise) {
-   }
-
-   // return boolean
-   @ReactMethod
-   public void hasAddress(String account, Promise promise) {
-   }
- */

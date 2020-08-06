@@ -14,7 +14,6 @@ class NodeRunner {
     private var nodeconf: GethNodeConfig?
     private var keyStore: GethKeyStore?
     private var nodeStarted: Bool = false
-    
     private let DATA_DIR = NSHomeDirectory() + "/Documents"
     private let ETH_DIR: String = ".ethereum"
     private var STATIC_NODES_FILES_PATH: String
@@ -32,7 +31,7 @@ class NodeRunner {
     func getNode() -> GethNode? {
         return self.node
     }
-
+    
     func getNodeStarted() -> Bool {
         return self.nodeStarted
     }
@@ -51,6 +50,31 @@ class NodeRunner {
     
     func setKeyStore(ks: GethKeyStore) -> Void {
         self.keyStore = ks
+    }
+    
+    func getKeyStore() -> GethKeyStore? {
+        return self.keyStore
+    }
+    
+    func findAccount(rawAddress: String) throws -> GethAccount? {
+        var error: NSError?
+        guard let address = GethNewAddressFromHex(rawAddress, &error) else {
+            throw error ?? RuntimeError("Invalid signer address")
+        }
+        
+        if self.keyStore?.hasAddress(address) == false {
+            return nil
+        }
+        
+        let accounts = self.keyStore?.getAccounts()
+        
+        for i in 0...(accounts?.size() ?? 0) {
+            let account = try accounts?.get(i)
+            if address.getHex() == account?.getAddress()?.getHex() {
+                return account
+            }
+        }
+        return nil
     }
     
     func writeStaticNodesFile(enodes: String) -> Void {

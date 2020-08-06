@@ -1,4 +1,3 @@
-// @flow
 /* eslint-disable no-console */
 
 import Geth from './src/geth'

@@ -20,12 +20,39 @@ struct RuntimeError: LocalizedError {
     }
 }
 
+extension Data {
+    var bytes:[UInt8] { // fancy pretty call: myData.bytes -> [UInt8]
+        return [UInt8](self)
+    }
+
+    init?(hexString: String) {
+        let hexString = hexString.dropFirst(hexString.hasPrefix("0x") ? 2 : 0)
+        let len = hexString.count / 2
+        var data = Data(capacity: len)
+        for i in 0..<len {
+            let j = hexString.index(hexString.startIndex, offsetBy: i*2)
+            let k = hexString.index(j, offsetBy: 2)
+            let bytes = hexString[j..<k]
+            if var num = UInt8(bytes, radix: 16) {
+                data.append(&num, count: 1)
+            } else {
+                return nil
+            }
+        }
+        self = data
+    }
+
+    func hex(prefixed isPrefixed:Bool = true) -> String {
+        return self.bytes.reduce(isPrefixed ? "0x" : "") { $0 + String(format: "%02X", $1) }
+    }
+}
+
 @objc(RNGeth)
 class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func onError(_ failure: String?) {
         NSLog("@", failure!)
     }
-    
+
     private let ETH_DIR: String = ".ethereum"
     private let KEY_STORE_DIR: String = "keystore"
     private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
@@ -52,18 +79,18 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("Failed stopping geth node: \(error)")
         }
     }
-    
+
     @objc(supportedEvents)
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
     }
-    
+
     func convertToDictionary(from text: String) throws -> [String: String] {
         guard let data = text.data(using: .utf8) else { return [:] }
         let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
         return anyResult as? [String: String] ?? [:]
     }
-    
+
     func onNewHead(_ header: GethHeader?) {
         guard bridge != nil else {
             // Don't call sendEvent when the bridge is not set
@@ -82,7 +109,142 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("@", NSErr)
         }
     }
-    
+
+    /**
+     * List accounts
+     * @return Return All accounts from keystore
+     */
+    @objc(listAccounts:rejecter:)
+    func listAccounts(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let accounts = keyStore.getAccounts()
+            var addresses: [NSDictionary] = []
+
+            for i in 0...((accounts?.size() ?? 1)-1) {
+                let account = try accounts?.get(i)
+                addresses.append([
+                    "account": i,
+                    "address": account?.getAddress()?.getHex() ?? "0x0"
+                ])
+            }
+            resolve([addresses] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Unlock an account with a passphrase
+     *
+     * @param account String account to unlock
+     * @param passphrase String passphrase for the account
+     * @param timeout Int64 duration of unlock period
+     * @param promise Promise
+     * @return Return Boolean the unlock status
+     */
+    @objc(unlockAccount:passphrase:timeout:resolver:rejecter:)
+    func unlockAccount(account: NSString, passphrase: NSString, timeout: NSInteger, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let account = try geth_node.findAccount(rawAddress: account as String)!
+            let _ = try keyStore.timedUnlock(account, passphrase: passphrase as String, timeout: Int64(timeout))
+            resolve([true] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Add a new account to the keystore
+     *
+     * @param privateKey Data the private key to add
+     * @param passphrase String the passphrase to lock it with
+     * @param promise Promise
+     * @return Account the new account
+     */
+    @objc(addAccount:passphrase:resolver:rejecter:)
+    func addAccount(privateKeyHex: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let privateKey = Data(hexString: privateKeyHex as String)
+            let account = try keyStore.importECDSAKey(privateKey, passphrase: passphrase as String)
+            resolve([account.getAddress()?.getHex()] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Signs a transaction using an unlocked account
+     *
+     * @param txRLP Data RLP encoded transaction
+     * @param from Stirng signer address
+     * @param promise Promise
+     * @return Return signed transaction
+     */
+    @objc(signTransaction:signer:resolver:rejecter:)
+    func signTransaction(txRLPHex: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        var error: NSError?
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let txRLP = Data(hexString: txRLPHex as String)
+            guard let tx = GethNewTransactionFromRLP(txRLP, &error) else {
+                throw error ?? RuntimeError("Unable to create tx from RLP")
+            }
+            let signer = try geth_node.findAccount(rawAddress: signer as String)!
+            let chainID = GethNewBigInt(geth_node.getNodeConfig()?.ethereumNetworkID ?? 0)
+            let signedTx = try keyStore.signTx(signer, tx: tx, chainID: chainID)
+            let encodedTx = try signedTx.encodeRLP()
+            resolve([encodedTx.hex(prefixed:true)] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Signs a transaction using a passphrase.
+     *
+     * @param txRLP Data RLP encoded transaction
+     * @param from Stirng signer address
+     * @param passphrase String passphrase
+     * @param promise Promise
+     * @return Return signed transaction
+     */
+    @objc(signTransactionPassphrase:signer:passphrase:resolver:rejecter:)
+    func signTransactionPassphrase(txRLPHex: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        var error: NSError?
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let txRLP = Data(hexString: txRLPHex as String)
+            guard let tx = GethNewTransactionFromRLP(txRLP, &error) else {
+                throw error ?? RuntimeError("Unable to create tx from RLP")
+            }
+            let signer = try geth_node.findAccount(rawAddress: signer as String)!
+            let chainID = GethNewBigInt(geth_node.getNodeConfig()?.ethereumNetworkID ?? 0)
+            let signedTx = try keyStore.signTxPassphrase(signer, passphrase: passphrase as String, tx: tx, chainID: chainID)
+            let encodedTx = try signedTx.encodeRLP()
+            resolve([encodedTx.hex(prefixed:true)] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
     /**
      * Creates and configures a new Geth node.
      *
@@ -199,7 +361,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return return true if stopped.
      */
     @objc(stopNode:rejecter:)
-    func stopNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func stopNode(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             var result: Bool = false
             if(geth_node.getNode() != nil) {
