@@ -8,6 +8,10 @@ export type NodeConfig = {
   enodes?: string,
   noDiscovery?: boolean,
   syncMode?: number
+  useLightweightKDF?: boolean,
+  ipcPath?: string
+  logFile?: string,
+  logFileLogLevel?: number,
 }
 
 export type Account = {
