@@ -4,12 +4,14 @@
 	"description": "React Native module to run a celo light client",
 	"main": "dist/geth.js",
 	"types": "dist/geth.d.ts",
+	"files": [ "/dist" ],
 	"scripts": {
       	"test": "echo \"Error: no test specified\" && exit 1",
       	"format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
 		"test": "eslint src && tsc",
 		"clean": "rm -rf dist/**",
-		"build": "npm run clean && tsc -b"
+		"build": "npm run clean && tsc -b",
+		"prepare": "npm run build"
 	},
 	"peerDependencies": {
 		"react": "*",
