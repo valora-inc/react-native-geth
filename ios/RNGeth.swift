@@ -134,6 +134,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 }
                 nodeconfig.bootstrapNodes = enodes
             }
+            // HTTP RPC configurations, which should only be used for development & debugging
             if let httpHost = config?["httpHost"] as? String {
                 nodeconfig.httpHost = httpHost
             }

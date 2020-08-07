@@ -104,15 +104,21 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             if (config.hasKey("useLightweightKDF")) nc.setUseLightweightKDF(config.getBoolean("useLightweightKDF"));
             if (config.hasKey("noDiscovery")) nc.setNoDiscovery(config.getBoolean("noDiscovery"));
             if (config.hasKey("bootnodeEnodes")) {
-              ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
-              int enodesSize = bootnodeEnodes.size();
-              Enodes enodes = new Enodes(enodesSize);
-              for (int i = 0; i < enodesSize; i++) {
-                Enode enode = new Enode(bootnodeEnodes.getString(i));
-                enodes.set(i, enode);
-              }
-              nc.setBootstrapNodes(enodes);
+                ReadableArray bootnodeEnodes = config.getArray("bootnodeEnodes");
+                int enodesSize = bootnodeEnodes.size();
+                Enodes enodes = new Enodes(enodesSize);
+                for (int i = 0; i < enodesSize; i++) {
+                    Enode enode = new Enode(bootnodeEnodes.getString(i));
+                    enodes.set(i, enode);
+                }
+                nc.setBootstrapNodes(enodes);
             }
+            // HTTP RPC configurations, which should only be used for development & debugging
+            if (config.hasKey("httpHost")) nc.setHTTPHost(config.getString("httpHost"));
+            if (config.hasKey("httpPort")) nc.setHTTPPort(config.getInt("httpPort"));
+            if (config.hasKey("httpVirtualHosts")) nc.setHTTPVirtualHosts(config.getString("httpVirtualHosts"));
+            if (config.hasKey("httpModules")) nc.setHTTPModules(config.getString("httpModules"));
+
             if (config.hasKey("ipcPath")) nc.setIPCPath(config.getString("ipcPath"));
             if (config.hasKey("logFile")) {
                 String logFileName = config.getString("logFile");
@@ -122,12 +128,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
                 }
                 Geth.sendLogsToFile(logFileName, logLevel, "term");
             }
-
-            // HTTP RPC configurations - this should only be used for development & debugging
-            if (config.hasKey("httpHost")) nc.setHTTPHost(config.getString("httpHost"));
-            if (config.hasKey("httpPort")) nc.setHTTPPort(config.getInt("httpPort"));
-            if (config.hasKey("httpVirtualHosts")) nc.setHTTPVirtualHosts(config.getString("httpVirtualHosts"));
-            if (config.hasKey("httpModules")) nc.setHTTPModules(config.getString("httpModules"));
 
             Log.i(TAG, "Making a new Geth Node");
             Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
@@ -533,15 +533,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putDouble("discoveryPort", nodeInfo.getDiscoveryPort());
         result.putDouble("listenerPort", nodeInfo.getListenerPort());
         promise.resolve(result);
-    }
-
-    private String[] readableArrayToStringArray(ReadableArray array) {
-      int arraySize = array.size();
-      String[] strArray = new String[arraySize];
-      for (int i = 0; i < arraySize; i++) {
-        strArray[i] = array.getString(i);
-      }
-      return strArray;
     }
 }
 
