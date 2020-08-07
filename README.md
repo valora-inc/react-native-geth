@@ -26,7 +26,7 @@ A smart contract is a computer protocol intended to digitally facilitate, verify
 ## Supported platforms
 
 -   Android
--   iOS (Need PR)
+-   iOS
 
 ## Initial Setup
 
@@ -75,18 +75,23 @@ const PrivateEth = async () => {
   }`
 
   const config = {
-    "bootnodeEnodes": [ // --bootnodesv5 / Enodes of v5 bootnodes for p2p discovery
-      "enode://XXXX@X[::]:XXXX",
-      "enode://YYYY@Y[::]:YYYY"
+    bootnodeEnodes: [ // --bootnodesv5 / Enodes of v5 bootnodes for p2p discovery
+      'enode://XXXX@X[::]:XXXX',
+      'enode://YYYY@Y[::]:YYYY'
     ],
-    "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
-    "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
-    "genesis": genesis, // genesis.json file
-    "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
-    "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
-    "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
-    "noDiscovery": false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
-    "syncMode": 5 // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
+    networkID: networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+    maxPeers: 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
+    genesis: genesis, // genesis.json file
+    nodeDir: '.private-ethereum', // --datadir / Data directory for the databases and keystore
+    keyStoreDir: 'keystore', // --keystore / Directory for the keystore (default = inside the datadir)
+    enodes: 'enode://XXXX@X[::]:XXXX', // static_nodes.json file. Comma separated enode URLs
+    noDiscovery: false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
+    syncMode: 5, // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
+    // HTTP RPC server - only intended for development & debugging
+    httpHost: '0.0.0.0', // host of the server
+    httpPort: 8545, // port the server will be created for
+    httpVirtualHosts: '*', // comma separated string of allowed virtual hostnames for requests
+    httpModules: ['rpc,txpool,admin,istanbul,les,net,web3,debug,eth'], // comma separated string of RPC API modules to expose
   }
 
   const geth = new Geth(config)
@@ -140,6 +145,10 @@ Geth object
     -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs of static nodes
     -   `config.noDiscovery` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Determines if the node will not participate in p2p discovery (v5)
     -   `config.syncMode` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
+    -   `config.httpHost` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The host of the HTTP RPC server. If not specified, no server is created.
+    -   `config.httpPort` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The port of the HTTP RPC server if present. If 0, a random port is chosen.
+    -   `config.httpVirtualHosts` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated virtual hostnames whose requests to the HTTP RPC server are allowed.
+    -   `config.httpModules` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated RPC API modules to expose.
 
 ### start
 
