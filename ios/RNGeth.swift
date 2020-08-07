@@ -98,8 +98,6 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             return;
         }
 
-        NSLog("Starting up")
-
         do {
             let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
             let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
@@ -131,18 +129,11 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 guard let enodes = GethEnodes(bootnodeEnodes.count) else {
                     throw error ?? RuntimeError("Unable to create GethEnodes")
                 }
-//                let enodes = try GethEnodes(bootnodeEnodes.count)
-//                let enodes: GethEnodes = GethEnodes(5)
-//                let enodes: GethEnodes = GethEnodes(bootnodeEnodes.count) ?? <#default value#>
                 for i in 0..<bootnodeEnodes.count {
-//                    guard let enodes = GethEnodes(bootnodeEnodes.count) else {
-//                        throw error ?? RuntimeError("Unable to create GethEnodes")
-//                    }
                     try enodes.set(i, enode: GethEnode(bootnodeEnodes[i]))
                 }
                 nodeconfig.bootstrapNodes = enodes
             }
-
             if let httpHost = config?["httpHost"] as? String {
                 nodeconfig.httpHost = httpHost
             }
