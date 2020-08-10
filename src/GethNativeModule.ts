@@ -16,6 +16,8 @@ export interface GethNativeModule {
     subscribeNewHead: () => Promise<boolean>,
     signTransactionPassphrase: (txRLPHex: string, signer: string, passphrase: string) => Promise<string>,
     signTransaction: (txRLPHex: string, signer: string) => Promise<string>,
+    signHash: (hashHex: string, signer: string) => Promise<string>,
+    signHashPassphrase: (hashHex: string, signer: string, passphrase: string) => Promise<string>,
     addAccount: (privateKeyHex: string, passphrase: string) => Promise<string>,
     unlockAccount: (account: string, passphrase: string, timeout: number) => Promise<boolean>,
     listAccounts: () => Promise<Account[]>,

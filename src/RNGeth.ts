@@ -70,7 +70,7 @@ export class RNGeth {
   /**
    * Sign a RLP-encoded transaction with the passphrase
    * @param txRLP - The RLP encoded transaction
-   * @param signer - Address of the signer
+   * @param signer - Address of the signer (can be locked)
    * @param  passphrase - The passphrase for the signer's account
    * @returns the signed transaction in RLP as a hex string
    */
@@ -82,12 +82,31 @@ export class RNGeth {
   /**
    * Sign a RLP-encoded transaction with an unlocked account
    * @param txRLP - The RLP encoded transaction
-   * @param signer - Address of the signer
+   * @param signer - Address of the signer (must be unlocked)
    * @returns the signed transaction in RLP as a hex string
    */
   async signTransaction(txRLP: string, signer: string): Promise<string> {
     const signedTxRLP = await this.geth.signTransaction(txRLP, signer)
     return signedTxRLP.toLowerCase()
+  }
+
+  /**
+   * Sign arbitrary data
+   * @param hashHex - input to sign encoded as a hex string
+   * @param signer - Address of the signer (must be unlocked)
+   */
+  async signHash(hashHex: string, signer: string): Promise<string> {
+    return await this.geth.signHash(hashHex, signer)
+  }
+
+  /**
+   * Sign arbitrary data with passphrase
+   * @param hashHex - input to sign encoded as a hex string
+   * @param signer - Address of the signer (can be locked)
+   * @param passphrase - The passphrase for the signer's account
+   */
+  async signHashPassphrase(hashHex: string, signer: string, passphrase: string): Promise<string> {
+    return this.geth.signHashPassphrase(hashHex, signer, passphrase)
   }
 }
 

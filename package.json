@@ -1,5 +1,5 @@
 {
-	"name": "react-native-celo",
+	"name": "react-native-geth",
 	"version": "1.0.0",
 	"description": "React Native module to run a celo light client",
 	"main": "dist/index.js",
@@ -42,7 +42,7 @@
 			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
 		}
 	},
-	"authors": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
+	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
 	"license": "MIT",
 	"keywords": [
 		"geth",

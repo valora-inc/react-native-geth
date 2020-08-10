@@ -185,6 +185,56 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     /**
+     * Signs data using an unlocked account
+     *
+     * @param data String hex encoded input
+     * @param signer String signer address
+     * @param promise Promise
+     * @return Return signed transaction
+     */
+    @objc(signHash:signer:resolver:rejecter:)
+    func signHash(data: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let data = Data(hexString: data as String)
+            let signerAccount = try geth_node.findAccount(rawAddress: signer as String)!
+            let signerAddress = signerAccount.getAddress()!
+            let signature = try keyStore.signHash(signerAddress, hash: data)
+            resolve([signature.hex(prefixed:true)] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Signs data using with passphrase
+     *
+     * @param data String hex encoded input
+     * @param signer String signer address
+     * @param passphrase String the account passphrase
+     * @param promise Promise
+     * @return Return signed transaction
+     */
+    @objc(signHashPassphrase:signer:passphrase:resolver:rejecter:)
+    func signHashPassphrase(data: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            guard let keyStore = geth_node.getKeyStore() else {
+                throw RuntimeError("KeyStore not ready")
+            }
+            let data = Data(hexString: data as String)
+            let signer = try geth_node.findAccount(rawAddress: signer as String)!
+            let signature = try keyStore.signHashPassphrase(signer, passphrase: passphrase as String, hash: data)
+            resolve([signature.hex(prefixed:true)] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
      * Signs a transaction using an unlocked account
      *
      * @param txRLP Data RLP encoded transaction
