@@ -14,7 +14,3 @@ export type NodeConfig = {
   logFileLogLevel?: number,
 }
 
-export type Account = {
-  address: string,
-  account: number
-}

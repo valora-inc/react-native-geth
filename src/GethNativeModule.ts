@@ -1,4 +1,4 @@
-import {Account, NodeConfig} from "./types";
+import {NodeConfig} from "./types";
 
 /**
  * GethNativeModule defines the interface for the native modules:
@@ -20,5 +20,5 @@ export interface GethNativeModule {
     signHashPassphrase: (hashHex: string, signer: string, passphrase: string) => Promise<string>,
     addAccount: (privateKeyHex: string, passphrase: string) => Promise<string>,
     unlockAccount: (account: string, passphrase: string, timeout: number) => Promise<boolean>,
-    listAccounts: () => Promise<Account[]>,
+    listAccounts: () => Promise<string[]>,
 }

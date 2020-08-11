@@ -121,14 +121,11 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 throw RuntimeError("KeyStore not ready")
             }
             let accounts = keyStore.getAccounts()
-            var addresses: [NSDictionary] = []
+            var addresses: [NSString] = []
 
             for i in 0...((accounts?.size() ?? 1)-1) {
                 let account = try accounts?.get(i)
-                addresses.append([
-                    "account": i,
-                    "address": account?.getAddress()?.getHex() ?? "0x0"
-                ])
+                addresses.append(account?.getAddress()?.getHex())
             }
             resolve([addresses] as NSObject)
         } catch let NSErr as NSError {

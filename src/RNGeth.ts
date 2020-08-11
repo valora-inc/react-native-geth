@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native'
-import { NodeConfig, Account } from './types'
+import { NodeConfig } from './types'
 import { GethNativeModule } from "./GethNativeModule";
 
 export class RNGeth {
@@ -51,7 +51,7 @@ export class RNGeth {
    * Returns all key files present in the directory.
    * @returns all accounts
    */
-  async listAccounts(): Promise<Account[]> {
+  async listAccounts(): Promise<string[]> {
     return await this.geth.listAccounts()
   }
 
