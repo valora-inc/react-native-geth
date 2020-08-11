@@ -136,23 +136,27 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             }
             // HTTP RPC configurations, which should only be used for development & debugging
             if let httpHost = config?["httpHost"] as? String {
-                nodeconfig.httpHost = httpHost
-            }
-            if let httpPort = config?["httpPort"] as? Int {
-                nodeconfig.httpPort = httpPort
-            }
-            if let httpVirtualHosts = config?["httpVirtualHosts"] as? String {
-                nodeconfig.httpVirtualHosts = httpVirtualHosts
-            }
-            if let httpModules = config?["httpModules"] as? String {
-                nodeconfig.httpModules = httpModules
-            }
-
-            if let ipcPath = config?["ipcPath"] as? String {
                 // Workaround gomobile objc binding bug for properties starting with a capital letter in the go source
                 // See https://github.com/golang/go/issues/32008
                 // Once that bug is fixed the assertion will fail and we can switch back to:
-                // nodeconfig.ipcPath = ipcPath
+                // nodeconfig.httpHost = httpHost
+                nodeconfig.setValue(httpHost, forKey: "HTTPHost")
+            }
+            if let httpPort = config?["httpPort"] as? Int {
+                // See comment for httpHost
+                nodeconfig.setValue(httpPort, forKey: "HTTPPort")
+            }
+            if let httpVirtualHosts = config?["httpVirtualHosts"] as? String {
+                // See comment for httpHost
+                nodeconfig.setValue(httpVirtualHosts, forKey: "HTTPVirtualHosts")
+            }
+            if let httpModules = config?["httpModules"] as? String {
+                // See comment for httpHost
+                nodeconfig.setValue(httpModules, forKey: "HTTPModules")
+            }
+
+            if let ipcPath = config?["ipcPath"] as? String {
+                // See comment for httpHost
                 nodeconfig.setValue(ipcPath, forKey: "IPCPath")
                 assert(nodeconfig.ipcPath == ipcPath)
             }
