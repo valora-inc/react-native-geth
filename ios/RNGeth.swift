@@ -20,33 +20,6 @@ struct RuntimeError: LocalizedError {
     }
 }
 
-extension Data {
-    var bytes:[UInt8] { // fancy pretty call: myData.bytes -> [UInt8]
-        return [UInt8](self)
-    }
-
-    init?(hexString: String) {
-        let hexString = hexString.dropFirst(hexString.hasPrefix("0x") ? 2 : 0)
-        let len = hexString.count / 2
-        var data = Data(capacity: len)
-        for i in 0..<len {
-            let j = hexString.index(hexString.startIndex, offsetBy: i*2)
-            let k = hexString.index(j, offsetBy: 2)
-            let bytes = hexString[j..<k]
-            if var num = UInt8(bytes, radix: 16) {
-                data.append(&num, count: 1)
-            } else {
-                return nil
-            }
-        }
-        self = data
-    }
-
-    func hex(prefixed isPrefixed:Bool = true) -> String {
-        return self.bytes.reduce(isPrefixed ? "0x" : "") { $0 + String(format: "%02X", $1) }
-    }
-}
-
 @objc(RNGeth)
 class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func onError(_ failure: String?) {
@@ -167,12 +140,14 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Account the new account
      */
     @objc(addAccount:passphrase:resolver:rejecter:)
-    func addAccount(privateKeyHex: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func addAccount(privateKeyBase64: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             guard let keyStore = geth_node.getKeyStore() else {
                 throw RuntimeError("KeyStore not ready")
             }
-            let privateKey = Data(hexString: privateKeyHex as String)
+            guard let privateKey = Data(base64Encoded: privateKeyBase64 as String) else {
+                throw RuntimeError("Invalid base64 encoded private key")
+            }
             let account = try keyStore.importECDSAKey(privateKey, passphrase: passphrase as String)
             resolve([account.getAddress()?.getHex()] as NSObject)
         } catch let NSErr as NSError {
@@ -190,16 +165,18 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Return signed transaction
      */
     @objc(signHash:signer:resolver:rejecter:)
-    func signHash(data: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func signHash(hashBase64: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             guard let keyStore = geth_node.getKeyStore() else {
                 throw RuntimeError("KeyStore not ready")
             }
-            let data = Data(hexString: data as String)
+            guard let hash = Data(base64Encoded: hashBase64 as String) else {
+                throw RuntimeError("Invalid base64 encoded hash")
+            }
             let signerAccount = try geth_node.findAccount(rawAddress: signer as String)!
             let signerAddress = signerAccount.getAddress()!
-            let signature = try keyStore.signHash(signerAddress, hash: data)
-            resolve([signature.hex(prefixed:true)] as NSObject)
+            let signature = try keyStore.signHash(signerAddress, hash: hash)
+            resolve([signature.base64EncodedString()] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
@@ -216,15 +193,17 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Return signed transaction
      */
     @objc(signHashPassphrase:signer:passphrase:resolver:rejecter:)
-    func signHashPassphrase(data: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func signHashPassphrase(hashBase64: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             guard let keyStore = geth_node.getKeyStore() else {
                 throw RuntimeError("KeyStore not ready")
             }
-            let data = Data(hexString: data as String)
+            guard let hash = Data(base64Encoded: hashBase64 as String) else {
+                throw RuntimeError("Invalid base64 encoded hash")
+            }
             let signer = try geth_node.findAccount(rawAddress: signer as String)!
-            let signature = try keyStore.signHashPassphrase(signer, passphrase: passphrase as String, hash: data)
-            resolve([signature.hex(prefixed:true)] as NSObject)
+            let signature = try keyStore.signHashPassphrase(signer, passphrase: passphrase as String, hash: hash)
+            resolve([signature.base64EncodedString()] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
@@ -240,21 +219,23 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Return signed transaction
      */
     @objc(signTransaction:signer:resolver:rejecter:)
-    func signTransaction(txRLPHex: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func signTransaction(txRLPBase64: NSString, signer: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         var error: NSError?
         do {
             guard let keyStore = geth_node.getKeyStore() else {
                 throw RuntimeError("KeyStore not ready")
             }
-            let txRLP = Data(hexString: txRLPHex as String)
-            guard let tx = GethNewTransactionFromRLP(txRLP, &error) else {
+            guard let data = Data(base64Encoded: txRLPBase64 as String) else {
+                throw RuntimeError("Invalid base64 encoded transaction")
+            }
+            guard let tx = GethNewTransactionFromRLP(data, &error) else {
                 throw error ?? RuntimeError("Unable to create tx from RLP")
             }
             let signer = try geth_node.findAccount(rawAddress: signer as String)!
             let chainID = GethNewBigInt(geth_node.getNodeConfig()?.ethereumNetworkID ?? 0)
             let signedTx = try keyStore.signTx(signer, tx: tx, chainID: chainID)
             let encodedTx = try signedTx.encodeRLP()
-            resolve([encodedTx.hex(prefixed:true)] as NSObject)
+            resolve([encodedTx.base64EncodedString()] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
@@ -271,21 +252,23 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      * @return Return signed transaction
      */
     @objc(signTransactionPassphrase:signer:passphrase:resolver:rejecter:)
-    func signTransactionPassphrase(txRLPHex: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    func signTransactionPassphrase(txRLPBase64: NSString, signer: NSString, passphrase: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         var error: NSError?
         do {
             guard let keyStore = geth_node.getKeyStore() else {
                 throw RuntimeError("KeyStore not ready")
             }
-            let txRLP = Data(hexString: txRLPHex as String)
-            guard let tx = GethNewTransactionFromRLP(txRLP, &error) else {
+            guard let data = Data(base64Encoded: txRLPBase64 as String) else {
+                throw RuntimeError("Invalid base64 encoded transaction")
+            }
+            guard let tx = GethNewTransactionFromRLP(data, &error) else {
                 throw error ?? RuntimeError("Unable to create tx from RLP")
             }
             let signer = try geth_node.findAccount(rawAddress: signer as String)!
             let chainID = GethNewBigInt(geth_node.getNodeConfig()?.ethereumNetworkID ?? 0)
             let signedTx = try keyStore.signTxPassphrase(signer, passphrase: passphrase as String, tx: tx, chainID: chainID)
             let encodedTx = try signedTx.encodeRLP()
-            resolve([encodedTx.hex(prefixed:true)] as NSObject)
+            resolve([encodedTx.base64EncodedString()] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)

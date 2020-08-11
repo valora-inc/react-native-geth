@@ -39,12 +39,12 @@ export class RNGeth {
 
   /**
    * Add a new account
-   * @param privateKey - the hex-encoded private key
+   * @param privateKey - the private key in base64
    * @param passphrase - the passphrase used for the account
    * @returns the new account
    */
-  async addAccount(privateKey:string , passphrase: string): Promise<string> {
-    return await this.geth.addAccount(privateKey, passphrase)
+  async addAccount(privateKeyBase64:string , passphrase: string): Promise<string> {
+    return await this.geth.addAccount(privateKeyBase64, passphrase)
   }
 
   /**
@@ -69,25 +69,25 @@ export class RNGeth {
 
   /**
    * Sign a RLP-encoded transaction with the passphrase
-   * @param txRLP - The RLP encoded transaction
+   * @param txRLPBase64 - The RLP encoded transaction
+   *                      (base64 is easier to decode in native)
    * @param signer - Address of the signer (can be locked)
    * @param  passphrase - The passphrase for the signer's account
-   * @returns the signed transaction in RLP as a hex string
+   * @returns the signed transaction in RLP as a base64 string
    */
-  async signTransactionPassphrase(txRLP: string, signer: string, passphrase: string): Promise<string> {
-    const signedTxRLP = await this.geth.signTransactionPassphrase(txRLP, signer, passphrase)
-    return signedTxRLP.toLowerCase()
+  async signTransactionPassphrase(txRLPBytes: string, signer: string, passphrase: string): Promise<string> {
+    return this.geth.signTransactionPassphrase(txRLPBytes, signer, passphrase)
   }
 
   /**
    * Sign a RLP-encoded transaction with an unlocked account
-   * @param txRLP - The RLP encoded transaction
+   * @param txRLPBase64 - The RLP encoded transaction in base64
+   *                      (base64 is easier to decode in native)
    * @param signer - Address of the signer (must be unlocked)
-   * @returns the signed transaction in RLP as a hex string
+   * @returns the signed transaction in RLP as a base64 string
    */
-  async signTransaction(txRLP: string, signer: string): Promise<string> {
-    const signedTxRLP = await this.geth.signTransaction(txRLP, signer)
-    return signedTxRLP.toLowerCase()
+  async signTransaction(txRLPBase64: string, signer: string): Promise<string> {
+    return this.geth.signTransaction(txRLPBase64, signer)
   }
 
   /**
@@ -95,8 +95,8 @@ export class RNGeth {
    * @param hashHex - input to sign encoded as a hex string
    * @param signer - Address of the signer (must be unlocked)
    */
-  async signHash(hashHex: string, signer: string): Promise<string> {
-    return await this.geth.signHash(hashHex, signer)
+  async signHash(hashBase64: string, signer: string): Promise<string> {
+    return await this.geth.signHash(hashBase64, signer)
   }
 
   /**
@@ -105,8 +105,8 @@ export class RNGeth {
    * @param signer - Address of the signer (can be locked)
    * @param passphrase - The passphrase for the signer's account
    */
-  async signHashPassphrase(hashHex: string, signer: string, passphrase: string): Promise<string> {
-    return this.geth.signHashPassphrase(hashHex, signer, passphrase)
+  async signHashPassphrase(hashBase64: string, signer: string, passphrase: string): Promise<string> {
+    return this.geth.signHashPassphrase(hashBase64, signer, passphrase)
   }
 }
 
