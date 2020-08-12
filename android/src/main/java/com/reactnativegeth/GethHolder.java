@@ -90,7 +90,7 @@ public class GethHolder {
         if (nb > 0) {
             for (long i = 0; i < nb; i++) {
                 Account acc = accounts.get(i);
-                if (acc.getAddress().getHex() == address) {
+                if (acc.getAddress().getHex().equals(address)) {
                     return acc;
                 }
             }
