@@ -1,4 +1,4 @@
-import {NodeConfig} from "./types";
+import {NodeConfig} from "./RNGeth"
 
 /**
  * GethNativeModule defines the interface for the native modules:

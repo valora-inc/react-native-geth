@@ -1,6 +1,21 @@
 import { NativeModules } from 'react-native'
-import { NodeConfig } from './types'
 import { GethNativeModule } from "./GethNativeModule";
+
+export type NodeConfig = {
+  bootnodeEnodes?: string[],
+  enodes?: string,
+  genesis?: string,
+  ipcPath?: string
+  keyStoreDir?: string,
+  logFile?: string,
+  logFileLogLevel?: number,
+  maxPeers?: number,
+  networkID?: number,
+  noDiscovery?: boolean,
+  nodeDir?: string,
+  syncMode?: number
+  useLightweightKDF?: boolean,
+}
 
 export class RNGeth {
   geth: GethNativeModule = NativeModules.RNGeth
