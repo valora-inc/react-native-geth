@@ -1,6 +1,6 @@
 {
     "name": "react-native-geth",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "React Native module to run a celo light client",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -8,15 +8,14 @@
         "/dist",
         "/android",
         "/ios",
-        "/react-native-geth.iml",
         "/react-native-geth.podspec",
+        "/react-native-geth.iml",
         "/app.json",
         "/.buckconfig"
     ],
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
         "test": "eslint src && tsc",
+        "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
         "clean": "rm -rf dist/**",
         "build": "npm run clean && tsc -b",
         "prepare": "npm run build"
