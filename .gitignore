@@ -64,4 +64,4 @@ flow-typed/
 # Test App
 RNGethSample/
 
-dist/
+lib/

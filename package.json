@@ -2,13 +2,14 @@
     "name": "react-native-geth",
     "version": "1.0.1",
     "description": "React Native module to run a celo light client",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "scripts": {
+        "tsc": "tsc -p tsconfig.json",
         "test": "eslint src && tsc",
         "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
-        "clean": "rm -rf dist/**",
-        "build": "npm run clean && tsc -b",
+        "clean": "rm -rf lib/**",
+        "build": "npm run clean && npm run tsc",
         "prepare": "npm run build"
     },
     "peerDependencies": {
