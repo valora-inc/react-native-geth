@@ -1,16 +1,16 @@
 export type NodeConfig = {
   bootnodeEnodes?: string[],
-  networkID?: number,
-  maxPeers?: number,
-  genesis?: string,
-  nodeDir?: string,
-  keyStoreDir?: string,
   enodes?: string,
-  noDiscovery?: boolean,
-  syncMode?: number
-  useLightweightKDF?: boolean,
+  genesis?: string,
   ipcPath?: string
+  keyStoreDir?: string,
   logFile?: string,
   logFileLogLevel?: number,
+  maxPeers?: number,
+  networkID?: number,
+  noDiscovery?: boolean,
+  nodeDir?: string,
+  syncMode?: number
+  useLightweightKDF?: boolean,
 }
 
