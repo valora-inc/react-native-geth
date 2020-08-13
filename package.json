@@ -4,10 +4,18 @@
 	"description": "React Native module to run a celo light client",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
-	"files": [ "/dist" ],
+	"files": [ 
+    "/dist", 
+    "./android", 
+    "./ios", 
+    "./react-native-geth.iml",
+    "./react-native-geth.podspec",
+    "./app.json",
+    "./.buckconfig"
+  ],
 	"scripts": {
-      	"test": "echo \"Error: no test specified\" && exit 1",
-      	"format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
 		"test": "eslint src && tsc",
 		"clean": "rm -rf dist/**",
 		"build": "npm run clean && tsc -b",
