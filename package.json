@@ -1,73 +1,73 @@
 {
-	"name": "react-native-geth",
-	"version": "1.0.0",
-	"description": "React Native module to run a celo light client",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"files": [ 
-    "/dist", 
-    "./android", 
-    "./ios", 
-    "./react-native-geth.iml",
-    "./react-native-geth.podspec",
-    "./app.json",
-    "./.buckconfig"
-  ],
-	"scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
-		"test": "eslint src && tsc",
-		"clean": "rm -rf dist/**",
-		"build": "npm run clean && tsc -b",
-		"prepare": "npm run build"
-	},
-	"peerDependencies": {
-		"react": "*",
-		"react-native": "*",
-		"react-native-swift": "^1.2.1"
-	},
-	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^3.8.0",
-		"@typescript-eslint/parser": "^3.8.0",
-		"eslint": "^7.6.0",
-		"eslint-config-airbnb": "^16.1.0",
-		"eslint-import-resolver-node": "^0.3.1",
-		"eslint-plugin-import": "^2.8.0",
-		"eslint-plugin-jsx-a11y": "^6.0.3",
-		"eslint-plugin-react": "^7.4.0",
-		"eslint-plugin-react-native": "^3.2.0",
-		"http-signature": "^1.2.0",
-		"typescript": "^3.9.7"
-	},
-	"rnpm": {
-		"android": {
-			"buildPatch": "    compile 'org.ethereum:geth:1.8.3'\n",
-			"packageImportPath": "import com.reactnativegeth.RNGethPackage;",
-			"packageInstance": "new RNGethPackage()",
-			"sourceDir": "./android"
-		},
-		"commands": {
-			"postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
-		}
-	},
-	"author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
-	"license": "MIT",
-	"keywords": [
-		"geth",
-		"go",
-		"ethereum",
-		"eth",
-		"react",
-		"react-native",
-		"android",
-		"ios"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/celo-org/react-native-geth.git"
-	},
-	"bugs": {
-		"url": "https://github.com/celo-org/react-native-geth/issues"
-	},
-	"homepage": "https://github.com/celo-org/react-native-geth"
+    "name": "react-native-geth",
+    "version": "1.0.0",
+    "description": "React Native module to run a celo light client",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "/dist",
+        "/android",
+        "/ios",
+        "/react-native-geth.iml",
+        "/react-native-geth.podspec",
+        "/app.json",
+        "/.buckconfig"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
+        "test": "eslint src && tsc",
+        "clean": "rm -rf dist/**",
+        "build": "npm run clean && tsc -b",
+        "prepare": "npm run build"
+    },
+    "peerDependencies": {
+        "react": "*",
+        "react-native": "*",
+        "react-native-swift": "^1.2.1"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^3.8.0",
+        "@typescript-eslint/parser": "^3.8.0",
+        "eslint": "^7.6.0",
+        "eslint-config-airbnb": "^16.1.0",
+        "eslint-import-resolver-node": "^0.3.1",
+        "eslint-plugin-import": "^2.8.0",
+        "eslint-plugin-jsx-a11y": "^6.0.3",
+        "eslint-plugin-react": "^7.4.0",
+        "eslint-plugin-react-native": "^3.2.0",
+        "http-signature": "^1.2.0",
+        "typescript": "^3.9.7"
+    },
+    "rnpm": {
+        "android": {
+            "buildPatch": "    compile 'org.ethereum:geth:1.8.3'\n",
+            "packageImportPath": "import com.reactnativegeth.RNGethPackage;",
+            "packageInstance": "new RNGethPackage()",
+            "sourceDir": "./android"
+        },
+        "commands": {
+            "postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
+        }
+    },
+    "author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
+    "license": "MIT",
+    "keywords": [
+        "geth",
+        "go",
+        "ethereum",
+        "eth",
+        "react",
+        "react-native",
+        "android",
+        "ios"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/celo-org/react-native-geth.git"
+    },
+    "bugs": {
+        "url": "https://github.com/celo-org/react-native-geth/issues"
+    },
+    "homepage": "https://github.com/celo-org/react-native-geth"
 }
