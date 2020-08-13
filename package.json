@@ -8,8 +8,7 @@
         "/dist",
         "/android",
         "/ios",
-        "/react-native-geth.podspec",
-        "/react-native-geth.iml",
+        "/react-native-geth.*",
         "/app.json",
         "/.buckconfig"
     ],
