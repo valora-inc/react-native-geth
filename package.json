@@ -4,14 +4,6 @@
     "description": "React Native module to run a celo light client",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "files": [
-        "/dist",
-        "/android",
-        "/ios",
-        "/react-native-geth.*",
-        "/app.json",
-        "/.buckconfig"
-    ],
     "scripts": {
         "test": "eslint src && tsc",
         "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
