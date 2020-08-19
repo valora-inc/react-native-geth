@@ -1,6 +1,6 @@
 {
     "name": "react-native-geth",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "description": "React Native module to run a celo light client",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
