@@ -236,10 +236,10 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return Return the address of the newly added account
      */
     @ReactMethod
-    public void unlockAccount(String address, String passphrase, Integer timeout, Promise promise) {
+    public void unlockAccount(String address, String passphrase, Double timeout, Promise promise) {
         try {
             Account account = gethHolder.findAccount(address);
-            this.gethHolder.getKeyStore().timedUnlock(account, passphrase, timeout);
+            this.gethHolder.getKeyStore().timedUnlock(account, passphrase, timeout.longValue());
             promise.resolve(true);
         } catch (Exception e) {
             promise.reject(UNLOCK_ACCOUNT_ERROR, e);
