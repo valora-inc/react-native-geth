@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.NoSuchElementException;
 
 public class GethHolder {
     private static final String ETH_DIR = ".ethereum";
@@ -95,7 +96,7 @@ public class GethHolder {
                 }
             }
         }
-        throw new Exception("Could not find account");
+        throw new NoSuchElementException("Could not find account in keystore");
     }
 
     protected void writeStaticNodesFile(String enodes) {

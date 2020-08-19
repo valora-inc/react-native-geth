@@ -49,13 +49,14 @@
             "postlink": "node node_modules/react-native-geth/scripts/rnpm-postlink"
         }
     },
-    "author": "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
+    "author": [
+        "Yassine Kassy <y.kassy@me.com> (https://www.linkedin.com/in/yassinekassy)",
+        "Bogdan Dumitru <bogdan@clabs.co>"
+    ],
     "license": "MIT",
     "keywords": [
-        "geth",
+        "celo",
         "go",
-        "ethereum",
-        "eth",
         "react",
         "react-native",
         "android",
