@@ -68,7 +68,7 @@ class NodeRunner {
         
         let accounts = self.keyStore?.getAccounts()
         
-        for i in 0...(accounts?.size() ?? 0) {
+        for i in 0..<(accounts?.size() ?? 0)  {
             let account = try accounts?.get(i)
             if address.getHex() == account?.getAddress()?.getHex() {
                 return account

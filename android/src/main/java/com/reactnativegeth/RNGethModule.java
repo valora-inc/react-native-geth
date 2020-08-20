@@ -486,13 +486,11 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         try {
             Accounts accounts = gethHolder.getKeyStore().getAccounts();
             Long nb = accounts.size();
-            WritableArray listAccounts = new WritableNativeArray();
-            if (nb > 0) {
-                for (long i = 0; i < nb; i++) {
-                    listAccounts.pushString(accounts.get(i).getAddress().getHex());
-                }
+            WritableArray result = new WritableNativeArray();
+            for (long i = 0; i < nb; i++) {
+                result.pushString(accounts.get(i).getAddress().getHex());
             }
-            promise.resolve(listAccounts);
+            promise.resolve(result);
         } catch (Exception e) {
             promise.reject(GET_ACCOUNTS_ERROR, e);
         }

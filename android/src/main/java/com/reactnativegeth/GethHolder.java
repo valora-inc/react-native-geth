@@ -88,12 +88,10 @@ public class GethHolder {
         String address = new Address(rawAddress).getHex();
         Accounts accounts = this.keyStore.getAccounts();
         Long nb = accounts.size();
-        if (nb > 0) {
-            for (long i = 0; i < nb; i++) {
-                Account acc = accounts.get(i);
-                if (acc.getAddress().getHex().equals(address)) {
-                    return acc;
-                }
+        for (long i = 0; i < nb; i++) {
+            Account acc = accounts.get(i);
+            if (acc.getAddress().getHex().equals(address)) {
+                return acc;
             }
         }
         throw new NoSuchElementException("Could not find account in keystore");

@@ -96,7 +96,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             let accounts = keyStore.getAccounts()
             var addresses: [String] = []
 
-            for i in 0...((accounts?.size() ?? 1)-1) {
+            for i in 0..<(accounts?.size() ?? 0)  {
                 let address = try accounts?.get(i).getAddress()?.getHex()
                 addresses.append(address!)
             }
