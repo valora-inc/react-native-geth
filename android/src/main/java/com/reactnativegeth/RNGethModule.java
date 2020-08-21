@@ -623,7 +623,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void sighHash(String hashBase64, String signer, Promise promise) {
+    public void signHash(String hashBase64, String signer, Promise promise) {
         try {
             promise.resolve(getHashSignature(hashBase64, signer, null));
         } catch (Exception e) {
@@ -641,7 +641,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void sighHashPassphrase(String hashBase64, String signer, String passphrase, Promise promise) {
+    public void signHashPassphrase(String hashBase64, String signer, String passphrase, Promise promise) {
         try {
             promise.resolve(getHashSignature(hashBase64, signer, passphrase));
         } catch (Exception e) {
