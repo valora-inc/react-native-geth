@@ -13,9 +13,9 @@
         "/react-native-geth.podspec"
     ],
     "scripts": {
-        "tsc": "npx tsc -p ./tsconfig.json",
+        "tsc": "tsc -p ./tsconfig.json",
         "test": "eslint src && tsc",
-        "format": "prittier --write \"src/**/*.ts\" \"src/**/*.js\"",
+        "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
         "clean": "rm -rf lib/**",
         "build": "npm run clean && npm run tsc",
         "prepare": "npm run build"
