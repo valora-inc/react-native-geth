@@ -361,9 +361,13 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(startNode:rejecter:)
     func startNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            try runner.getNode().start()
-            runner.nodeStarted = true
-            resolve([true] as NSObject)
+            var result = false
+            if !runner.nodeStarted {
+                try runner.getNode().start()
+                runner.nodeStarted = true
+                result = true
+            }
+            resolve([result] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
@@ -390,9 +394,13 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(stopNode:rejecter:)
     func stopNode(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            try runner.getNode().close()
-            runner.nodeStarted = false
-            resolve([true] as NSObject)
+            var result = false
+            if runner.nodeStarted {
+                try runner.getNode().close()
+                runner.nodeStarted = false
+                result = true
+            }
+            resolve([result] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
