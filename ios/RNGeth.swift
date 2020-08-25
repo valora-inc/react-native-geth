@@ -22,10 +22,6 @@ struct RuntimeError: LocalizedError {
 
 @objc(RNGeth)
 class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
-    func onError(_ failure: String?) {
-        NSLog("@", failure!)
-    }
-
     private let ETH_DIR = ".ethereum"
     private let KEY_STORE_DIR = "keystore"
     private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
@@ -37,6 +33,16 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         runner = NodeRunner()
         super.init()
     }
+    
+    // MARK: Utils
+    
+    func convertToDictionary(from text: String) throws -> [String: String] {
+        guard let data = text.data(using: .utf8) else { return [:] }
+        let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
+        return anyResult as? [String: String] ?? [:]
+    }
+    
+    // MARK: RCTEventEmitter
 
     // Not yet sure we actually need main queue setup,
     // but do it for now to be on the safe side :D
@@ -57,11 +63,11 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
     }
-
-    func convertToDictionary(from text: String) throws -> [String: String] {
-        guard let data = text.data(using: .utf8) else { return [:] }
-        let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
-        return anyResult as? [String: String] ?? [:]
+    
+    // MARK: GethNewHeadHandlerProtocol
+    
+    func onError(_ failure: String?) {
+        NSLog("@", failure!)
     }
 
     func onNewHead(_ header: GethHeader?) {
@@ -82,6 +88,8 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("@", NSErr)
         }
     }
+    
+    // MARK: Bridge methods
 
     /**
      * List accounts
