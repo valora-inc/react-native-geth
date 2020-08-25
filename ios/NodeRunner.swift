@@ -56,25 +56,34 @@ class NodeRunner {
         return self.keyStore
     }
     
-    func findAccount(rawAddress: String) throws -> GethAccount? {
+    func getAccounts() throws -> GethAccounts {
+        guard let keyStore = self.keyStore else {
+            throw RuntimeError("KeyStore not ready")
+        }
+        
+        guard let accounts = keyStore.getAccounts() else {
+            throw RuntimeError("Accounts not ready")
+        }
+        
+        return accounts
+    }
+    
+    func findAccount(rawAddress: String) throws -> GethAccount {
         var error: NSError?
         guard let address = GethNewAddressFromHex(rawAddress, &error) else {
             throw error ?? RuntimeError("Invalid address")
         }
         
-        if self.keyStore?.hasAddress(address) == false {
-            return nil
-        }
+        let accounts = try getAccounts()
         
-        let accounts = self.keyStore?.getAccounts()
-        
-        for i in 0..<(accounts?.size() ?? 0)  {
-            let account = try accounts?.get(i)
-            if address.getHex() == account?.getAddress()?.getHex() {
+        for i in 0..<accounts.size()  {
+            let account = try accounts.get(i)
+            if address.getHex() == account.getAddress()?.getHex() {
                 return account
             }
         }
-        return nil
+        
+        throw RuntimeError("Unable to find account \(rawAddress)")
     }
     
     func writeStaticNodesFile(enodes: String) -> Void {
