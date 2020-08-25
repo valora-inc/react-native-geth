@@ -95,7 +95,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
 
         try {
             Log.i(TAG, "Configuring node config");
-            NodeConfig nc = gethHolder.getNodeConfig();
+            NodeConfig nc = new NodeConfig();
             String nodeDir = ETH_DIR;
             String keyStoreDir = KEY_STORE_DIR;
             if (config.hasKey("enodes"))
@@ -153,7 +153,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void startNode(Promise promise) {
         Boolean result = false;
         try {
-            if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == false) {
+            if (gethHolder.getNodeStarted() == false) {
                 Log.i(TAG, "Starting node");
                 gethHolder.getNode().start();
                 gethHolder.setNodeStarted(true);
@@ -176,7 +176,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void stopNode(Promise promise) {
         Boolean result = false;
         try {
-            if (gethHolder.getNode() != null && gethHolder.getNodeStarted() == true) {
+            if (gethHolder.getNodeStarted() == true) {
                 Log.i(TAG, "Stopping node");
                 gethHolder.getNode().close();
                 gethHolder.setNodeStarted(false);
