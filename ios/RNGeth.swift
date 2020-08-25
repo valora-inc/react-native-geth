@@ -26,15 +26,15 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         NSLog("@", failure!)
     }
 
-    private let ETH_DIR: String = ".ethereum"
-    private let KEY_STORE_DIR: String = "keystore"
+    private let ETH_DIR = ".ethereum"
+    private let KEY_STORE_DIR = "keystore"
     private let DATA_DIR_PREFIX = NSHomeDirectory() + "/Documents"
     private let ctx: GethContext!
-    private var geth_node: NodeRunner
+    private var runner: NodeRunner
 
     override init() {
-        self.ctx = GethNewContext()
-        self.geth_node = NodeRunner()
+        ctx = GethNewContext()
+        runner = NodeRunner()
         super.init()
     }
 
@@ -47,7 +47,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     // Called when React Native is reloaded
     @objc func invalidate() {
         do {
-            try geth_node.getNode()?.stop()
+            try runner.node?.stop()
         } catch {
             NSLog("Failed stopping geth node: \(error)")
         }
@@ -76,8 +76,8 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             guard let json = header?.encodeJSON(&error) else {
                 throw error ?? RuntimeError("Unable to encode geth header")
             }
-            let dict = try self.convertToDictionary(from: json)
-            self.sendEvent(withName: "GethNewHead", body:dict)
+            let dict = try convertToDictionary(from: json)
+            sendEvent(withName: "GethNewHead", body:dict)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
         }
@@ -91,7 +91,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     func listAccounts(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
             var addresses: [String] = []
-            let accounts = try geth_node.getAccounts()
+            let accounts = try runner.getAccounts()
             
             for i in 0..<accounts.size()  {
                 if let address = try accounts.get(i).getAddress()?.getHex() {
@@ -118,10 +118,8 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(unlockAccount:passphrase:timeout:resolver:rejecter:)
     func unlockAccount(accountAddress: String, passphrase: String, timeout: NSNumber, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            guard let keyStore = geth_node.getKeyStore() else {
-                throw RuntimeError("KeyStore not ready")
-            }
-            let account = try geth_node.findAccount(rawAddress: accountAddress)
+            let keyStore = try runner.getKeyStore()
+            let account = try runner.findAccount(rawAddress: accountAddress)
             let _ = try keyStore.timedUnlock(account, passphrase: passphrase, timeout: timeout.int64Value)
             resolve([true] as NSObject)
         } catch let NSErr as NSError {
@@ -141,12 +139,10 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(addAccount:passphrase:resolver:rejecter:)
     func addAccount(privateKeyBase64: String, passphrase: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            guard let keyStore = geth_node.getKeyStore() else {
-                throw RuntimeError("KeyStore not ready")
-            }
             guard let privateKey = Data(base64Encoded: privateKeyBase64) else {
                 throw RuntimeError("Invalid base64 encoded private key")
             }
+            let keyStore = try runner.getKeyStore()
             let account = try keyStore.importECDSAKey(privateKey, passphrase: passphrase)
             resolve([account.getAddress()?.getHex()] as NSObject)
         } catch let NSErr as NSError {
@@ -156,13 +152,11 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     func getHashSignature(hashBase64: String, signer: String, passphrase: String?) throws -> String {
-        guard let keyStore = geth_node.getKeyStore() else {
-            throw RuntimeError("KeyStore not ready")
-        }
         guard let hash = Data(base64Encoded: hashBase64) else {
             throw RuntimeError("Invalid base64 encoded hash")
         }
-        let signerAccount = try geth_node.findAccount(rawAddress: signer)
+        let keyStore = try runner.getKeyStore()
+        let signerAccount = try runner.findAccount(rawAddress: signer)
         let signature: Data
         if let passphrase = passphrase {
             signature = try keyStore.signHashPassphrase(signerAccount, passphrase: passphrase, hash: hash)
@@ -216,9 +210,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     func getSignedTx(txRLPBase64: String, signer: String, passphrase: String?) throws -> String {
-        guard let keyStore = geth_node.getKeyStore() else {
-            throw RuntimeError("KeyStore not ready")
-        }
+        let keyStore = try runner.getKeyStore()
         guard let data = Data(base64Encoded: txRLPBase64) else {
             throw RuntimeError("Invalid base64 encoded transaction")
         }
@@ -226,8 +218,8 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         guard let tx = GethNewTransactionFromRLP(data, &error) else {
             throw error ?? RuntimeError("Unable to create tx from RLP")
         }
-        let signer = try geth_node.findAccount(rawAddress: signer)
-        let chainID = GethNewBigInt(geth_node.getNodeConfig()?.ethereumNetworkID ?? 0)
+        let signer = try runner.findAccount(rawAddress: signer)
+        let chainID = GethNewBigInt(runner.nodeConfig?.ethereumNetworkID ?? 0)
         let signedTx: GethTransaction
         if let passphrase = passphrase {
             signedTx = try keyStore.signTxPassphrase(signer, passphrase: passphrase, tx: tx, chainID: chainID)
@@ -286,20 +278,21 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
      */
     @objc(setConfig:resolver:rejecter:)
     func setConfig(config: NSDictionary?, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
-        if (geth_node.getNodeStarted()){
-            NSLog("Node is already started, skipping creation");
+        if (runner.nodeStarted){
+            NSLog("Node is already started, skipping creation")
             resolve([true] as NSObject)
             return;
         }
         
         do {
-            let nodeconfig: GethNodeConfig = geth_node.getNodeConfig()!
-            let nodeDir: String = (config?["nodeDir"] as? String) ?? ETH_DIR
-            let keyStoreDir: String = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
-            var error: NSError?
-            
+            guard let nodeconfig = GethNewNodeConfig() else {
+                throw RuntimeError("Unable to create node config")
+            }
+            let nodeDir = (config?["nodeDir"] as? String) ?? ETH_DIR
+            let keyStoreDir = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
+                        
             if let enodes = config?["enodes"] as? String {
-                geth_node.writeStaticNodesFile(enodes: enodes)
+                runner.writeStaticNodesFile(enodes: enodes)
             }
             if let networkID = config?["networkID"] as? Int64 {
                 nodeconfig.ethereumNetworkID = networkID
@@ -333,6 +326,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 FileManager.default.changeCurrentDirectoryPath(dataDir)
             }
 
+            var error: NSError?
             guard let node = GethNewNode(dataDir, nodeconfig, &error) else {
                 throw error ?? RuntimeError("Unable to create geth node")
             }
@@ -340,9 +334,9 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
                 throw RuntimeError("Unable to create geth key store")
             }
 
-            geth_node.setNodeConfig(nc: nodeconfig)
-            geth_node.setKeyStore(ks: keyStore)
-            geth_node.setNode(node: node)
+            runner.nodeConfig = nodeconfig
+            runner.keyStore = keyStore
+            runner.node = node
             resolve([true] as NSObject)
         } catch let NCErr as NSError {
             NSLog("@", NCErr)
@@ -359,14 +353,9 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(startNode:rejecter:)
     func startNode(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            var result: Bool = false
-            if(geth_node.getNode() != nil) {
-                try geth_node.getNode()?.start()
-                result = true
-                geth_node.setNodeStarted(started: true)
-            }
-            
-            resolve([result] as NSObject)
+            try runner.getNode().start()
+            runner.nodeStarted = true
+            resolve([true] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)
@@ -376,9 +365,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(subscribeNewHead:rejecter:)
     func subscribeNewHead(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            if(geth_node.getNode() != nil) {
-                try geth_node.getNode()?.getEthereumClient().subscribeNewHead(self.ctx, handler: self, buffer: 16)
-            }
+            try runner.getNode().getEthereumClient().subscribeNewHead(ctx, handler: self, buffer: 16)
             resolve([true] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
@@ -395,13 +382,9 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(stopNode:rejecter:)
     func stopNode(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            var result: Bool = false
-            if(geth_node.getNode() != nil) {
-                try geth_node.getNode()?.close()
-                result = true
-                geth_node.setNodeStarted(started: false)
-            }
-            resolve([result] as NSObject)
+            try runner.getNode().close()
+            runner.nodeStarted = false
+            resolve([true] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
             reject(nil, nil, NSErr)

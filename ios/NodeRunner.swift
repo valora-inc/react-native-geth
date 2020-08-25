@@ -9,59 +9,42 @@ import Foundation
 import CeloBlockchain
 
 class NodeRunner {
-    private let ctx = GethNewContext()
-    private var node: GethNode?
-    private var nodeconf: GethNodeConfig?
-    private var keyStore: GethKeyStore?
-    private var nodeStarted: Bool = false
+    enum FileError: Error {
+        case RuntimeError(String)
+    }
+    
     private let DATA_DIR = NSHomeDirectory() + "/Documents"
-    private let ETH_DIR: String = ".ethereum"
+    private let ETH_DIR = ".ethereum"
     private var STATIC_NODES_FILES_PATH: String
-    private let STATIC_NODES_FILES_NAME: String = "static-nodes.json"
+    private let STATIC_NODES_FILES_NAME = "static-nodes.json"
+    
+    var node: GethNode?
+    var nodeConfig: GethNodeConfig?
+    var keyStore: GethKeyStore?
+    var nodeStarted = false
     
     init() {
-        self.nodeconf = GethNewNodeConfig()
         self.STATIC_NODES_FILES_PATH = self.DATA_DIR + "/" + self.ETH_DIR + "/iOSGeth"
     }
     
-    func getNodeConfig() -> GethNodeConfig? {
-        return self.nodeconf
+    func getNode() throws -> GethNode {
+        guard let node = node else {
+            throw RuntimeError("Node not ready")
+        }
+        
+        return node
     }
     
-    func getNode() -> GethNode? {
-        return self.node
-    }
-    
-    func getNodeStarted() -> Bool {
-        return self.nodeStarted
-    }
-
-    func setNodeStarted(started: Bool) {
-        self.nodeStarted = started
-    }
-    
-    func setNode(node: GethNode) -> Void {
-        self.node = node
-    }
-    
-    func setNodeConfig(nc: GethNodeConfig) -> Void {
-        self.nodeconf = nc
-    }
-    
-    func setKeyStore(ks: GethKeyStore) -> Void {
-        self.keyStore = ks
-    }
-    
-    func getKeyStore() -> GethKeyStore? {
-        return self.keyStore
-    }
-    
-    func getAccounts() throws -> GethAccounts {
+    func getKeyStore() throws -> GethKeyStore {
         guard let keyStore = self.keyStore else {
             throw RuntimeError("KeyStore not ready")
         }
         
-        guard let accounts = keyStore.getAccounts() else {
+        return keyStore
+    }
+    
+    func getAccounts() throws -> GethAccounts {
+        guard let accounts = try getKeyStore().getAccounts() else {
             throw RuntimeError("Accounts not ready")
         }
         
@@ -110,9 +93,5 @@ class NodeRunner {
         } catch let writeErr as NSError {
             NSLog("@s", writeErr)
         }
-    }
-    
-    enum FileError: Error {
-        case RuntimeError(String)
     }
 }
