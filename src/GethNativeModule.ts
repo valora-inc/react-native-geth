@@ -5,6 +5,10 @@ export type NodeConfig = {
   bootnodeEnodes?: string[],
   enodes?: string,
   genesis?: string,
+  httpHost?: string,
+  httpModules?: string,
+  httpPort?: number,
+  httpVirtualHosts?: string,
   ipcPath?: string
   keyStoreDir?: string,
   logFile?: string,
@@ -99,4 +103,3 @@ export interface GethNativeModule {
    */
   listAccounts: () => Promise<string[]>,
 }
-

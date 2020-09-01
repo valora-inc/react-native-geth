@@ -79,10 +79,10 @@ const PrivateEth = async () => {
       'enode://XXXX@X[::]:XXXX',
       'enode://YYYY@Y[::]:YYYY'
     ],
-    networkID: networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+    networkID: networkID, // --networkid / Network identifier (integer, 42220=mainnet, 62320=baklava (testnet), 44787=alfajores (testnet)) (default: 1)
     maxPeers: 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
     genesis: genesis, // genesis.json file
-    nodeDir: '.private-ethereum', // --datadir / Data directory for the databases and keystore
+    nodeDir: '.celo', // --datadir / Data directory for the databases and keystore
     keyStoreDir: 'keystore', // --keystore / Directory for the keystore (default = inside the datadir)
     enodes: 'enode://XXXX@X[::]:XXXX', // static_nodes.json file. Comma separated enode URLs
     noDiscovery: false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
