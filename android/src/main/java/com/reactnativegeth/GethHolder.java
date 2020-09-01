@@ -2,9 +2,13 @@ package com.reactnativegeth;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
 
 import org.ethereum.geth.Account;
+import org.ethereum.geth.Accounts;
+import org.ethereum.geth.Address;
 import org.ethereum.geth.KeyStore;
 import org.ethereum.geth.Node;
 import org.ethereum.geth.NodeConfig;
@@ -13,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.NoSuchElementException;
 
 public class GethHolder {
     private static final String ETH_DIR = ".ethereum";
@@ -77,6 +82,19 @@ public class GethHolder {
 
     protected void setKeyStore(KeyStore keyStore) {
         this.keyStore = keyStore;
+    }
+
+    protected Account findAccount(String rawAddress) throws Exception {
+        String address = new Address(rawAddress).getHex();
+        Accounts accounts = this.keyStore.getAccounts();
+        Long nb = accounts.size();
+        for (long i = 0; i < nb; i++) {
+            Account acc = accounts.get(i);
+            if (acc.getAddress().getHex().equals(address)) {
+                return acc;
+            }
+        }
+        throw new NoSuchElementException("Could not find account in keystore");
     }
 
     protected void writeStaticNodesFile(String enodes) {

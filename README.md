@@ -1,27 +1,8 @@
 # React Native Geth
 
-![Ethereum](https://geth.ethereum.org/static/images/ethereum.png)
-
 ## Description
 
-RNGeth makes using [Go-Ethereum](https://github.com/ethereum/go-ethereum) ( Official Go implementation of the Ethereum protocol ) with React Native simple.
-
-#### What is react-native-geth?
-Is a React-Native module allow you to build dApps (Decentralized Applications) transforms your mobile device into a light client node on the Ethereum Network and enables you to easily access Ethereum’s entire ecosystem. Interacting with Smart Contracts, make payment,....
-
-#### What is Blockchain?
-A blockchain, originally block chain, is a continuously growing list of records, called blocks, which are linked and secured using cryptography. Each block typically contains a hash pointer as a link to a previous block, a timestamp and transaction data. By design, blockchains are inherently resistant to modification of the data. It is "an open, distributed ledger that can record transactions between two parties efficiently and in a verifiable and permanent way". For use as a distributed ledger, a blockchain is typically managed by a peer-to-peer network collectively adhering to a protocol for validating new blocks. Once recorded, the data in any given block cannot be altered retroactively without the alteration of all subsequent blocks, which requires collusion of the network majority.
-
-
-
-#### What is Ethereum?
-Ethereum is a decentralized platform that runs smart contracts, applications that run exactly as programmed without possibility of downtime, censorship, fraud or third party interference.
-
-#### What is Go Ethereum?
-[Go-Ethereum](https://github.com/ethereum/go-ethereum) is one of the three original implementations (along with C++ and Python) of the Ethereum protocol. It is written in Go
-
-#### What is Smart Contract?
-A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible.
+RNGeth implements a bridge between React Native and `celo-blockchain` (geth) in order to use the light client as part of React Native mobile applications.
 
 ## Supported platforms
 
@@ -36,25 +17,44 @@ $ npm i react-native-geth --save
 $ react-native link react-native-geth
 ```
 
-## JavaScript Usage
+## Usage
 
-```js
-import Geth from 'react-native-geth';
+```typescript
+import RNGeth, { NodeConfig } from 'react-native-geth';
 
-// Ethereum Network Frontier
-const Eth = async () => {
-  const geth = new Geth()
-  // start node
-  const start = await geth.start()
+// Network ID
+const networkID = 1
+// Chain ID
+const chainID = 17
+// genesis.json
+const genesis = `{
+  "config": {
+    "chainId": ${chainID},
+    "homesteadBlock": 0,
+    "eip155Block": 0,
+    "eip158Block": 0
+  },
+  "difficulty": "20",
+  "gasLimit": "10000000",
+  "alloc": {}
+}`
 
-  if (start) {
-    console.log('Start :', start)
-    // stop node
-    const stop = await geth.stop()
-    console.log('Stop :', stop)
-  }
+const config: NodeConfig = {
+  "bootnodeEnodes": [ // --bootnodesv5 / Enodes of v5 bootnodes for p2p discovery
+    "enode://XXXX@X[::]:XXXX",
+    "enode://YYYY@Y[::]:YYYY"
+  ],
+  "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+  "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
+  "genesis": genesis, // genesis.json file
+  "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
+  "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
+  "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
+  "noDiscovery": false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
+  "syncMode": 5 // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
 }
 
+<<<<<<< HEAD
 // Custom Ethereum Network
 const PrivateEth = async () => {
   // Network ID
@@ -96,6 +96,11 @@ const PrivateEth = async () => {
 
   const geth = new Geth(config)
   // start node
+=======
+async function main() {
+  const geth = new RNGeth()
+  await geth.setConfig(config)
+>>>>>>> 6beb2b396c9217813290957915db430bb5187e2d
   const start = await geth.start()
 
   if (start) {
@@ -105,197 +110,163 @@ const PrivateEth = async () => {
   }
 }
 
+main())
 ```
 
 ## Documentation :
 ### Table of Contents
 
--   [Geth](#geth)
+-   [NodeConfig](#NodeConfig)
+-   [RNGeth](#RNgeth)
+    -   [setConfig](#setConfig)
     -   [start](#start)
     -   [stop](#stop)
-    -   [newAccount](#newaccount)
-    -   [setAccount](#setaccount)
-    -   [getAddress](#getaddress)
-    -   [balanceAccount](#balanceaccount)
-    -   [balanceAt](#balanceat)
-    -   [syncProgress](#syncprogress)
-    -   [subscribeNewHead](#subscribenewhead)
-    -   [updateAccount](#updateaccount)
-    -   [deleteAccount](#deleteaccount)
-    -   [exportKey](#exportkey)
-    -   [importKey](#importkey)
-    -   [listAccounts](#listaccounts)
-    -   [createAndSendTransaction](#createandsendtransaction)
-    -   [suggestGasPrice](#suggestgasprice)
-    -   [getPendingNonce](#getpendingnonce)
+    -   [addAccount](#addAccount)
+    -   [listAccounts](#listAccounts)
+    -   [unlockAccount](#unlockAccount)
+    -   [signTransaction](#signTransaction)
+    -   [signTransactionPassphrase](#signTransactionPassphrase)
+    -   [signHash](#signHash)
+    -   [signHashPassphrase](#signHashPassphrase)
 
-## Geth
+## NodeConfig
 
-Geth object
+The object that holds the config of the node consists of these fields:
+-   `bootnodeEnodes` **[]string** Enode URLs for P2P discovery bootstrap
+-   `enodes` **string** Comma separated enode URLs of static nodes
+-   `genesis` **string** genesis.json file
+-   `keyStoreDir` **string** Directory for the keystore (default = inside the datadir)
+-   `logFile` **string** Path where to write geth logfile
+-   `logFileLogLevel` **number** Log level when writing to file
+-   `maxPeers` **number** Maximum number of network peers (network disabled if set to 0) (default: 25)
+-   `networkID` **number** Network identifier
+-   `noDiscovery` **boolean** Determines if the node will not participate in p2p discovery (v5)
+-   `nodeDir` **string** Data directory for the databases and keystore
+-   `syncMode` **number** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
+-   `useLightweightKDF` **boolean** Enable Lightweight KDF
 
-**Parameters**
+## RNGeth
 
--   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)**
-    -   `config.bootnodeEnodes` **[array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)** Enode URLs for P2P discovery bootstrap
-    -   `config.chainID` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
-    -   `config.maxPeers` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Maximum number of network peers (network disabled if set to 0) (default: 25)
-    -   `config.genesis` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** genesis.json file
-    -   `config.nodeDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Data directory for the databases and keystore
-    -   `config.keyStoreDir` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Directory for the keystore (default = inside the datadir)
-    -   `config.enodes` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated enode URLs of static nodes
-    -   `config.noDiscovery` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Determines if the node will not participate in p2p discovery (v5)
-    -   `config.syncMode` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
-    -   `config.httpHost` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The host of the HTTP RPC server. If not specified, no server is created.
-    -   `config.httpPort` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The port of the HTTP RPC server if present. If 0, a random port is chosen.
-    -   `config.httpVirtualHosts` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated virtual hostnames whose requests to the HTTP RPC server are allowed.
-    -   `config.httpModules` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Comma separated RPC API modules to expose.
+#### Notes on binary data parameters
+
+When dealing with blockchain accounts we're usually handling binary data in the hexadecimal format as a general convention of the ecosystem.
+These can be private keys, hashes, or transactions encoded in RLP format.
+The `celo-blockchain` (geth) library being more low-level expects byte arrays, but getting byte arrays accross the native bridge is troublesome.
+As mentioned above a hexadecimal encoded string is the common way of passing around such data but our native environments are lacking in standard library support for parsing hex strings.
+We could have added additional code for this, but it would increase our attack surface, it being hard(er) to test and maintain.
+Therefore, we've decided to rely on Base64 encoding which is better supported by the native platforms.
+
+This means in several places where we're passing binary data to the bridge `base64` is te preferred encoding. This is easily achieved on the javascript side with access to the `Buffer` type.
+
+```typescript
+const base64String = Buffer.from(hexString, 'hex').toString('base64');
+```
+
+### setConfig
+
+**setConfig(config: NodeConfig): Promise<boolean>**
+
+Configures the node and returns true on success, may throw errors.
 
 ### start
 
-Start creates a live P2P node and starts running it.
+**start(): Promise<boolean>**
 
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if started.
+Start creates a live P2P node and starts running it.
+Returns true if a node was started, false if node was already running and may throw errors.
 
 ### stop
 
+**stop(): Promise<boolean>**
+
 Terminates a running node along with all it's services.
+Returns true if a node was stopped, false if node was not running and may throw errors.
 
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if stopped.
+### addAccount
 
-### newAccount
+**addAccount(privateKeyBase64: string, passphrase: string): Promise<address: string>**
 
-Create a new account with the specified encryption passphrase.
-
-**Parameters**
-
--   `passphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
-
-Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** return new account object
-
-### setAccount
-
-Sets the default account at the given index in the listAccounts.
+Adds an account based on the private key and a passphrase.
 
 **Parameters**
 
--   `accID` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** index in the listAccounts
+-   `privateKeyBase64` **string** Private Key encoded in base64
+-   `passphrase` **string** Passphrase
 
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** return true if sets.
+Returns **Promise<string>** return the address of the created account
 
-### getAddress
+### unlockAccount
 
-Retrieves the address associated with the current account.
+**unlockAccount(address: string, passphrase: string, timeout: number): Promise<address: string>**
 
-Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** return address..
-
-### balanceAccount
-
-Returns the wei balance of the current account.
-
-Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** return balance.
-
-### balanceAt
-
-Returns the wei balance of the specified account.
+Unlock an account with a passphrase for a set duration.
 
 **Parameters**
 
--   `address` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Address of account being looked up.
-
-Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return balance.
-
-### syncProgress
-
-Retrieves the current progress of the sync algorithm.
-
-Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Return object sync progress or null
+-   `address` **string** The address of the account to unlock
+-   `passphrase` **string** The passphrase that unlocks the account
+-   `timeout` **number** The duration (in seconds) the account should remain unlocked
 
 ### subscribeNewHead
 
-Subscribes to notifications about the current blockchain head
+**subscribeNewhead(): Promise<boolean>**
 
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if subscribed
-
-### updateAccount
-
-Changes the passphrase of current account.
-
-**Parameters**
-
--   `oldPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
--   `newPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
-
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if passphrase changed
-
-### deleteAccount
-
-Deletes the key matched by current account if the passphrase is correct.
-
-**Parameters**
-
--   `passphrase` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-
-Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Return true if account deleted
-
-### exportKey
-
-Exports as a JSON key of current account, encrypted with new passphrase.
-
-**Parameters**
-
--   `creationPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Old Passphrase
--   `exportPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
-
-Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return key
-
-### importKey
-
-Stores the given encrypted JSON key into the key directory.
-
-**Parameters**
-
--   `key` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
--   `oldPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Old passphrase
--   `newPassphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** New passphrase
-
-Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Return account object
+Subscribes to notifications about the current blockchain head, returns true if successful, may throw error.
 
 ### listAccounts
 
-Returns all key files present in the directory.
+**listAccounts(): Promise<string[]>**
 
-Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)** Return array of accounts objects
+Returns all account addresses managed by the key store.
 
-### createAndSendTransaction
+### signTransaction
 
-Create and send transaction.
+**signTransaction(txRLPBase64: string, signer: string): Promise<signedTxRLPBase64: string>**
 
-**Parameters**
+Sign a transaction with a previously unlocked account.
 
--   `passphrase` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Passphrase
--   `nonce` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Account nonce (use -1 to use last known nonce)
--   `toAddress` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Address destination
--   `amount` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Amount
--   `gasLimit` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Gas limit
--   `gasPrice` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Gas price
--   `data` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
+**Parameters**:
+- `txRLPBase64` - base64 encoded transaction in RLP format
+- `signer` - the address of the signer (must be unlocked beforehand)
 
-Returns **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Return transaction
+Returns the signed transaction in RLP format encoded as base64.
 
-### suggestGasPrice
+### signTransactionPassphrase
 
-Retrieves the currently suggested gas price to allow a timely execution of a transaction.
+**signTransactionPassphrase(txRLPBase64: string, signer: string, passphrase: string): Promise<signedTxRLPBase64: string>**
 
-Returns **Double** Return suggested gas price
+Sign a transaction with a passphrase for the signer account.
 
-### getPendingNonce
+**Parameters**:
+- `txRLPBase64` - base64 encoded transaction in RLP format
+- `signer` - the address of the signer
+- `passphrase` - the passphrase to unlock the signer account
 
-Retrieves this account's pending nonce. This is the nonce you should use when creating a transaction.
+Returns the signed transaction in RLP format encoded as base64.
 
-Returns **Double** Return nonce
+### signHash
 
----
-# Press the "Watch" button to get updates. Do not forget the "Star" button 😀
+**signHash(hashBase64: string, signer: string): Promise<signatureBase64: string>**
 
----
+Sign a hash with a previously unlocked account.
+
+**Parameters**:
+- `hashBase64` - base64 encoded hash
+- `signer` - the address of the signer (must be unlocked beforehand)
+
+Returns the signature (binary) encoded as base64.
+
+### signHashPassphrase
+
+**signHashPassphrase(hashBase64: string, signer: string, passphrase: string): Promise<hashBase64: string>**
+
+Sign a hash with a passphrase for the signer account.
+
+**Parameters**:
+- `hashBase64` - base64 encoded hash
+- `signer` - the address of the signer
+- `passphrase` - the passphrase to unlock the signer account
+
+Returns the signature (binary) encoded as base64.
+
 React Native Geth is released under the [MIT license](https://raw.githubusercontent.com/YsnKsy/react-native-geth/master/LICENSE.md)
