@@ -322,7 +322,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             }
             if let bootnodeEnodes = config?["bootnodeEnodes"] as? [String] {
                 guard let enodes = GethEnodes(bootnodeEnodes.count) else {
-                    throw error ?? RuntimeError("Unable to create GethEnodes")
+                    RuntimeError("Unable to create GethEnodes")
                 }
                 for i in 0..<bootnodeEnodes.count {
                     try enodes.set(i, enode: GethEnode(bootnodeEnodes[i]))
