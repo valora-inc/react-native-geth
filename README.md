@@ -88,7 +88,7 @@ const PrivateEth = async () => {
     noDiscovery: false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
     syncMode: 5, // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
     // HTTP RPC server - only intended for development & debugging
-    httpHost: '0.0.0.0', // host of the server
+    httpHost: '127.0.0.1', // host of the server
     httpPort: 8545, // port the server will be created for
     httpVirtualHosts: '*', // comma separated string of allowed virtual hostnames for requests
     httpModules: ['rpc,txpool,admin,istanbul,les,net,web3,debug,eth'], // comma separated string of RPC API modules to expose
