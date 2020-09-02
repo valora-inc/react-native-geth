@@ -44,63 +44,19 @@ const config: NodeConfig = {
     "enode://XXXX@X[::]:XXXX",
     "enode://YYYY@Y[::]:YYYY"
   ],
-  "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+  "networkID": networkID, // --networkid / Network identifier (integer, 42220=mainnet, 62320=baklava (testnet), 44787=alfajores (testnet)) (default: 1)
   "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
   "genesis": genesis, // genesis.json file
-  "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
+  "nodeDir": ".celo", // --datadir / Data directory for the databases and keystore
   "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
   "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
   "noDiscovery": false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
   "syncMode": 5 // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
 }
 
-<<<<<<< HEAD
-// Custom Ethereum Network
-const PrivateEth = async () => {
-  // Network ID
-  const networkID = 1
-  // Chain ID
-  const chainID = 17
-  // genesis.json
-  const genesis = `{
-    "config": {
-      "chainId": ${chainID},
-      "homesteadBlock": 0,
-      "eip155Block": 0,
-      "eip158Block": 0
-    },
-    "difficulty": "20",
-    "gasLimit": "10000000",
-    "alloc": {}
-  }`
-
-  const config = {
-    bootnodeEnodes: [ // --bootnodesv5 / Enodes of v5 bootnodes for p2p discovery
-      'enode://XXXX@X[::]:XXXX',
-      'enode://YYYY@Y[::]:YYYY'
-    ],
-    networkID: networkID, // --networkid / Network identifier (integer, 42220=mainnet, 62320=baklava (testnet), 44787=alfajores (testnet)) (default: 1)
-    maxPeers: 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
-    genesis: genesis, // genesis.json file
-    nodeDir: '.celo', // --datadir / Data directory for the databases and keystore
-    keyStoreDir: 'keystore', // --keystore / Directory for the keystore (default = inside the datadir)
-    enodes: 'enode://XXXX@X[::]:XXXX', // static_nodes.json file. Comma separated enode URLs
-    noDiscovery: false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
-    syncMode: 5, // the number associated with a sync mode in `celo-blockchain/mobile/geth.go`
-    // HTTP RPC server - only intended for development & debugging
-    httpHost: '127.0.0.1', // host of the server
-    httpPort: 8545, // port the server will be created for
-    httpVirtualHosts: '*', // comma separated string of allowed virtual hostnames for requests
-    httpModules: ['rpc,txpool,admin,istanbul,les,net,web3,debug,eth'], // comma separated string of RPC API modules to expose
-  }
-
-  const geth = new Geth(config)
-  // start node
-=======
 async function main() {
   const geth = new RNGeth()
   await geth.setConfig(config)
->>>>>>> 6beb2b396c9217813290957915db430bb5187e2d
   const start = await geth.start()
 
   if (start) {
