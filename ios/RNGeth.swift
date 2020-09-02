@@ -33,15 +33,15 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         runner = NodeRunner()
         super.init()
     }
-    
+
     // MARK: Utils
-    
+
     func convertToDictionary(from text: String) throws -> [String: String] {
         guard let data = text.data(using: .utf8) else { return [:] }
         let anyResult: Any = try JSONSerialization.jsonObject(with: data, options: [])
         return anyResult as? [String: String] ?? [:]
     }
-    
+
     // MARK: RCTEventEmitter
 
     // Not yet sure we actually need main queue setup,
@@ -63,9 +63,9 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     override func supportedEvents() -> [String]! {
         return ["GethNewHead"]
     }
-    
+
     // MARK: GethNewHeadHandlerProtocol
-    
+
     func onError(_ failure: String?) {
         NSLog("@", failure!)
     }
@@ -88,7 +88,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             NSLog("@", NSErr)
         }
     }
-    
+
     // MARK: Bridge methods
 
     /**
@@ -100,13 +100,13 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         do {
             var addresses: [String] = []
             let accounts = try runner.getAccounts()
-            
+
             for i in 0..<accounts.size()  {
                 if let address = try accounts.get(i).getAddress()?.getHex() {
                     addresses.append(address)
                 }
             }
-            
+
             resolve([addresses] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
@@ -291,14 +291,14 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             resolve([true] as NSObject)
             return;
         }
-        
+
         do {
             guard let nodeconfig = GethNewNodeConfig() else {
                 throw RuntimeError("Unable to create node config")
             }
             let nodeDir = (config?["nodeDir"] as? String) ?? ETH_DIR
             let keyStoreDir = (config?["keyStoreDir"] as? String) ?? KEY_STORE_DIR
-                        
+
             if let enodes = config?["enodes"] as? String {
                 runner.writeStaticNodesFile(enodes: enodes)
             }
@@ -317,13 +317,49 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             if let useLightweightKDF = config?["useLightweightKDF"] as? Bool {
                 nodeconfig.useLightweightKDF = useLightweightKDF
             }
-            if let ipcPath = config?["ipcPath"] as? String {
+            if let noDiscovery = config?["noDiscovery"] as? Bool {
+                nodeconfig.noDiscovery = noDiscovery
+            }
+            if let bootnodeEnodes = config?["bootnodeEnodes"] as? [String] {
+                guard let enodes = GethEnodes(bootnodeEnodes.count) else {
+                    throw error ?? RuntimeError("Unable to create GethEnodes")
+                }
+                for i in 0..<bootnodeEnodes.count {
+                    try enodes.set(i, enode: GethEnode(bootnodeEnodes[i]))
+                }
+                nodeconfig.bootstrapNodes = enodes
+            }
+            // HTTP RPC configurations, which should only be used for development & debugging
+            if let httpHost = config?["httpHost"] as? String {
                 // Workaround gomobile objc binding bug for properties starting with a capital letter in the go source
                 // See https://github.com/golang/go/issues/32008
                 // Once that bug is fixed the assertion will fail and we can switch back to:
-                // nodeconfig.ipcPath = ipcPath
+                // nodeconfig.httpHost = httpHost
+                nodeconfig.setValue(httpHost, forKey: "HTTPHost")
+            }
+            if let httpPort = config?["httpPort"] as? Int {
+                // See comment for httpHost
+                nodeconfig.setValue(httpPort, forKey: "HTTPPort")
+            }
+            if let httpVirtualHosts = config?["httpVirtualHosts"] as? String {
+                // See comment for httpHost
+                nodeconfig.setValue(httpVirtualHosts, forKey: "HTTPVirtualHosts")
+            }
+            if let httpModules = config?["httpModules"] as? String {
+                // See comment for httpHost
+                nodeconfig.setValue(httpModules, forKey: "HTTPModules")
+            }
+            if let ipcPath = config?["ipcPath"] as? String {
+                // See comment for httpHost
                 nodeconfig.setValue(ipcPath, forKey: "IPCPath")
                 assert(nodeconfig.ipcPath == ipcPath)
+            }
+            if let logFile = config?["logFile"] as? String {
+                var logLevel = 3  // Info
+                if let logFileLogLevel = config?["logFileLogLevel"] as? Int {
+                    logLevel = logFileLogLevel
+                }
+                GethSendLogsToFile(logFile, logLevel, "term")
             }
 
             let dataDir = DATA_DIR_PREFIX + "/" + nodeDir
@@ -351,7 +387,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NCErr)
         }
     }
-    
+
     /**
      * Start creates a live P2P node and starts running it.
      *
@@ -373,7 +409,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NSErr)
         }
     }
-    
+
     @objc(subscribeNewHead:rejecter:)
     func subscribeNewHead(resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
@@ -384,7 +420,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NSErr)
         }
     }
-    
+
     /**
      * Terminates a running node along with all it's services.
      *

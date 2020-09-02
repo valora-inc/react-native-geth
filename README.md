@@ -44,10 +44,10 @@ const config: NodeConfig = {
     "enode://XXXX@X[::]:XXXX",
     "enode://YYYY@Y[::]:YYYY"
   ],
-  "networkID": networkID, // --networkid / Network identifier (integer, 0=Olympic (disused), 1=Frontier, 2=Morden (disused), 3=Ropsten) (default: 1)
+  "networkID": networkID, // --networkid / Network identifier (integer, 42220=mainnet, 62320=baklava (testnet), 44787=alfajores (testnet)) (default: 1)
   "maxPeers": 0, // --maxpeers / Maximum number of network peers (network disabled if set to 0) (default: 25)
   "genesis": genesis, // genesis.json file
-  "nodeDir": ".private-ethereum", // --datadir / Data directory for the databases and keystore
+  "nodeDir": ".celo", // --datadir / Data directory for the databases and keystore
   "keyStoreDir": "keystore", // --keystore / Directory for the keystore (default = inside the datadir)
   "enodes": "enode://XXXX@X[::]:XXXX" // static_nodes.json file. Comma separated enode URLs
   "noDiscovery": false, // --nodiscover / determines if the node will not participate in p2p discovery (v5)
@@ -95,7 +95,7 @@ The object that holds the config of the node consists of these fields:
 -   `logFile` **string** Path where to write geth logfile
 -   `logFileLogLevel` **number** Log level when writing to file
 -   `maxPeers` **number** Maximum number of network peers (network disabled if set to 0) (default: 25)
--   `networkID` **number** Network identifier 
+-   `networkID` **number** Network identifier
 -   `noDiscovery` **boolean** Determines if the node will not participate in p2p discovery (v5)
 -   `nodeDir` **string** Data directory for the databases and keystore
 -   `syncMode` **number** The number associated with a sync mode in `celo-blockchain/mobile/geth.go`
@@ -108,8 +108,8 @@ The object that holds the config of the node consists of these fields:
 When dealing with blockchain accounts we're usually handling binary data in the hexadecimal format as a general convention of the ecosystem.
 These can be private keys, hashes, or transactions encoded in RLP format.
 The `celo-blockchain` (geth) library being more low-level expects byte arrays, but getting byte arrays accross the native bridge is troublesome.
-As mentioned above a hexadecimal encoded string is the common way of passing around such data but our native environments are lacking in standard library support for parsing hex strings. 
-We could have added additional code for this, but it would increase our attack surface, it being hard(er) to test and maintain. 
+As mentioned above a hexadecimal encoded string is the common way of passing around such data but our native environments are lacking in standard library support for parsing hex strings.
+We could have added additional code for this, but it would increase our attack surface, it being hard(er) to test and maintain.
 Therefore, we've decided to rely on Base64 encoding which is better supported by the native platforms.
 
 This means in several places where we're passing binary data to the bridge `base64` is te preferred encoding. This is easily achieved on the javascript side with access to the `Buffer` type.
@@ -128,7 +128,7 @@ Configures the node and returns true on success, may throw errors.
 
 **start(): Promise<boolean>**
 
-Start creates a live P2P node and starts running it. 
+Start creates a live P2P node and starts running it.
 Returns true if a node was started, false if node was already running and may throw errors.
 
 ### stop
@@ -195,12 +195,12 @@ Sign a transaction with a passphrase for the signer account.
 
 **Parameters**:
 - `txRLPBase64` - base64 encoded transaction in RLP format
-- `signer` - the address of the signer 
+- `signer` - the address of the signer
 - `passphrase` - the passphrase to unlock the signer account
 
 Returns the signed transaction in RLP format encoded as base64.
 
-### signHash 
+### signHash
 
 **signHash(hashBase64: string, signer: string): Promise<signatureBase64: string>**
 
@@ -220,7 +220,7 @@ Sign a hash with a passphrase for the signer account.
 
 **Parameters**:
 - `hashBase64` - base64 encoded hash
-- `signer` - the address of the signer 
+- `signer` - the address of the signer
 - `passphrase` - the passphrase to unlock the signer account
 
 Returns the signature (binary) encoded as base64.
