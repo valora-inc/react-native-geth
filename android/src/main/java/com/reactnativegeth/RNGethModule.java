@@ -135,9 +135,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
             }
 
             Log.i(TAG, "Making a new Geth Node");
-            Node nd = Geth.newNode(getReactApplicationContext().getFilesDir() + "/" + nodeDir, nc);
-            KeyStore ks = new KeyStore(getReactApplicationContext().getFilesDir() + "/"
-                    + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
+            String dataDir = getReactApplicationContext().getFilesDir() + "/" + nodeDir;
+            Node nd = Geth.newNode(dataDir, nc);
+            KeyStore ks = new KeyStore(dataDir + "/" + keyStoreDir, Geth.LightScryptN, Geth.LightScryptP);
             gethHolder.setNodeConfig(nc);
             gethHolder.setKeyStore(ks);
             gethHolder.setNode(nd);
