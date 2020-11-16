@@ -675,5 +675,33 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putDouble("listenerPort", nodeInfo.getListenerPort());
         promise.resolve(result);
     }
+
+    /**
+     * Retrieves the peersInfo
+     *
+     * @param promise Promise
+     * @return return a map with peers info
+     */
+    @ReactMethod
+    public void getPeerInfos(Promise promise) {
+        PeerInfos peerInfos = gethHolder.getNode().getPeerInfos();
+        long peersSize = peerInfos.size()
+
+        WritableArray result = new WritableNativeArray();
+        for (long i = 0; i < peersSize; i++) {
+            PeerInfo peerInfo = peersInfo.get(i);
+
+            WritableMap peerMap = new WritableNativeMap();
+            peerMap.putString("id", peerInfo.getID());
+            peerMap.putString("name", peerInfo.getName());
+            peerMap.putString("caps", peerInfo.getCaps().toString());
+            peerMap.putString("ip", peerInfo.getIP());
+            peerMap.putString("localAddress", peerInfo.getLocalAddress());
+            peerMap.putString("remoteAddress", peerInfo.getRemoteAddress());
+            result.pushMap(peerMap);
+        }
+
+        promise.resolve(result);
+    }
 }
 

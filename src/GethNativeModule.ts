@@ -102,4 +102,7 @@ export interface GethNativeModule {
    * @returns all accounts
    */
   listAccounts: () => Promise<string[]>,
+
+  getNodeInfo: () => Promise<Map<string, any>>,
+  getPeerInfos: () => Promise<Array<Map<string, any>>>,
 }
