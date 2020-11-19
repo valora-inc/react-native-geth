@@ -65,6 +65,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String SIGN_HASH_PASSPHRASE_ERROR = "SIGN_HASH_PASSPHRASE_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
+    private static final String COMPUTE_SHARED_SECRET_ERROR = "COMPUTE_SHARED_SECRET_ERROR";
 
     private GethHolder gethHolder;
 
@@ -674,6 +675,26 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putDouble("discoveryPort", nodeInfo.getDiscoveryPort());
         result.putDouble("listenerPort", nodeInfo.getListenerPort());
         promise.resolve(result);
+    }
+
+    /**
+     * Retrieves the nodeInfo
+     *
+     * @param signer the address 
+     * @param publicKey Promise
+     * @param promise Promise
+     * @return return a map with node info
+     */
+    @ReactMethod
+    public void computeSharedSecret(String signer, String publicKeyBase64, Promise promise) {
+      try{
+        Account account = gethHolder.findAccount(signer);
+        byte[] publicKey = Base64.decode(publicKeyBase64, Base64.DEFAULT);
+        promise.resolve(gethHolder.getKeyStore().computeECDHSharedSecret(account, publicKey));
+      } catch (Exception e){
+        promise.reject(COMPUTE_SHARED_SECRET_ERROR, e);
+      }
+        
     }
 }
 
