@@ -101,9 +101,9 @@ export interface GethNativeModule {
    */
   listAccounts: () => Promise<string[]>;
   /**
-   * Add a new account
-   * @param account - the private key in base64
-   * @param publicKey - the passphrase used for the account
+   * Computes an ECDH shared secret between the user's private key and another user's public key
+   * @param account - the address of the account
+   * @param publicKey - another user's public key in base64
    * @returns the shared secret
    */
   computeSharedSecret: (account: string, publicKey: string) => Promise<Buffer>;    
