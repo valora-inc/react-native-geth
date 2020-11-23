@@ -544,15 +544,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Get the signature by either using the passphrase or if null, consider
      * the account unlocked
      * @param txRLPBase64 base64 encoded RLP transaction
-     * @param user the address signing the transaction
-     * @param passphrase the passphrase which unlocks the user
-     * @throws NoSuchElementException - when no account is found for the user
-     * @throws Exception - if the passphrase is wrong / user isn't unlocked
+     * @param signer the address signing the transaction
+     * @param passphrase the passphrase which unlocks the signer
+     * @throws NoSuchElementException - when no account is found for the signer
+     * @throws Exception - if the passphrase is wrong / signer isn't unlocked
      * @return return base64 encoded RLP of the signed transaction
      */
-    private String getTxSignature(String txRLPBase64, String user, String passphrase) throws Exception {
+    private String getTxSignature(String txRLPBase64, String signer, String passphrase) throws Exception {
         byte[] txRLP = Base64.decode(txRLPBase64, Base64.DEFAULT);
-        Account account = gethHolder.findAccount(user);
+        Account account = gethHolder.findAccount(signer);
         Transaction tx = new Transaction(txRLP);
         BigInt chainID = new BigInt(gethHolder.getNodeConfig().getEthereumNetworkID());
         Transaction signedTx;
@@ -568,14 +568,14 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Signs a transaction with an unlocked account
      *
      * @param txRLPBase64 base64 encoded RLP transaction
-     * @param user the address signing the transaction
+     * @param signer the address signing the transaction
      * @param promise Promise
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void signTransaction(String txRLPBase64, String user, Promise promise) {
+    public void signTransaction(String txRLPBase64, String signer, Promise promise) {
         try {
-            promise.resolve(getTxSignature(txRLPBase64, user, null));
+            promise.resolve(getTxSignature(txRLPBase64, signer, null));
         } catch (Exception e) {
             promise.reject(SIGN_TRANSACTION_ERROR, e);
         }
@@ -585,15 +585,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Signs a transaction with a passphrase
      *
      * @param txRLPBase64 base64 encoded RLP transaction
-     * @param user the address signing the transaction
-     * @param passphrase the passphrase which unlocks the user
+     * @param signer the address signing the transaction
+     * @param passphrase the passphrase which unlocks the signer
      * @param promise Promise
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void signTransactionPassphrase(String txRLPBase64, String user, String passphrase, Promise promise) {
+    public void signTransactionPassphrase(String txRLPBase64, String signer, String passphrase, Promise promise) {
         try {
-            promise.resolve(getTxSignature(txRLPBase64, user, passphrase));
+            promise.resolve(getTxSignature(txRLPBase64, signer, passphrase));
         } catch (Exception e) {
             promise.reject(SIGN_TRANSACTION_PASSPHRASE_ERROR, e);
         }
@@ -603,15 +603,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Get the hash signature either by using the passphrase if it's provided
      * or by relying on the account being unlocked
      * @param hashBase64 base64 encoded hash
-     * @param user the address signing the hash
+     * @param signer the address signing the hash
      * @param passphrase (optional) the passphrase to unlock the account
-     * @throws NoSuchElementException - when no account is found for the user
-     * @throws Exception - if the passphrase is wrong / user isn't unlocked
+     * @throws NoSuchElementException - when no account is found for the signer
+     * @throws Exception - if the passphrase is wrong / signer isn't unlocked
      * @return The base64 encoded signature
      */
-    private String getHashSignature(String hashBase64, String user, String passphrase) throws Exception {
+    private String getHashSignature(String hashBase64, String signer, String passphrase) throws Exception {
         byte[] hashBytes = Base64.decode(hashBase64, Base64.DEFAULT);
-        Account account = gethHolder.findAccount(user);
+        Account account = gethHolder.findAccount(signer);
         byte[] signature;
         if (passphrase == null) {
             signature = gethHolder.getKeyStore().signHash(account.getAddress(), hashBytes);
@@ -625,14 +625,14 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Signs a hash with an unlocked account
      *
      * @param hashBase64 base64 encoded hash
-     * @param user the address signing the hash
+     * @param signer the address signing the hash
      * @param promise Promise
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void signHash(String hashBase64, String user, Promise promise) {
+    public void signHash(String hashBase64, String signer, Promise promise) {
         try {
-            promise.resolve(getHashSignature(hashBase64, user, null));
+            promise.resolve(getHashSignature(hashBase64, signer, null));
         } catch (Exception e) {
             promise.reject(SIGN_HASH_ERROR, e);
         }
@@ -642,15 +642,15 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * Signs a hash with a passphrase
      *
      * @param hashBase64 base64 encoded RLP transaction
-     * @param user the address signing the transaction
-     * @param passphrase the passphrase to unlock the user
+     * @param signer the address signing the transaction
+     * @param passphrase the passphrase to unlock the signer
      * @param promise Promise
      * @return return base64 encoded RLP of the signed transaction
      */
     @ReactMethod
-    public void signHashPassphrase(String hashBase64, String user, String passphrase, Promise promise) {
+    public void signHashPassphrase(String hashBase64, String signer, String passphrase, Promise promise) {
         try {
-            promise.resolve(getHashSignature(hashBase64, user, passphrase));
+            promise.resolve(getHashSignature(hashBase64, signer, passphrase));
         } catch (Exception e) {
             promise.reject(SIGN_HASH_PASSPHRASE_ERROR, e);
         }
