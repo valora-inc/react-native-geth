@@ -38,6 +38,9 @@ import org.ethereum.geth.Transaction;
 import org.ethereum.geth.NodeInfo;
 import org.ethereum.geth.Strings;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+
 public class RNGethModule extends ReactContextBaseJavaModule {
 
     private static final String TAG = "RNGeth";
@@ -66,6 +69,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
     private static final String COMPUTE_SHARED_SECRET_ERROR = "COMPUTE_SHARED_SECRET_ERROR";
+    private static final String DECRYPT_ERROR = "DECRYPT_ERROR";
 
     private GethHolder gethHolder;
 
@@ -678,7 +682,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * Computes an ECDH shared secret between the user's private key and another user's public key
+     * Computes an ECDH shared secret between the user's privayeahte key and another user's public key
      *
      * @param address the address of the user
      * @param publicKey another user's public key
@@ -690,11 +694,31 @@ public class RNGethModule extends ReactContextBaseJavaModule {
       try{
         Account account = gethHolder.findAccount(address);
         byte[] publicKey = Base64.decode(publicKeyBase64, Base64.DEFAULT);
-        promise.resolve(gethHolder.getKeyStore().computeECDHSharedSecret(account, publicKey));
+        byte[] secret = gethHolder.getKeyStore().computeECDHSharedSecret(account, publicKey);
+        promise.resolve(Base64.encodeToString(secret, Base64.DEFAULT));
       } catch (Exception e){
         promise.reject(COMPUTE_SHARED_SECRET_ERROR, e);
       }
         
     }
+
+    /**
+     * Decrypts an ECIES ciphertext
+     *
+     * @param address the address of the user
+     * @param cipher the cipher to be decrypted
+     * @param promise Promise
+     * @return return the decrypted text
+     */
+    // @ReactMethod
+    // public void decrypt(String address, Buffer cipher, Promise promise) {
+    //   try{
+    //     Account account = gethHolder.findAccount(address);
+    //     promise.resolve(gethHolder.getKeyStore().decrypt(account, cipher));
+    //   } catch (Exception e){
+    //     promise.reject(DECRYPT_ERROR, e);
+    //   }
+        
+    // }
 }
 
