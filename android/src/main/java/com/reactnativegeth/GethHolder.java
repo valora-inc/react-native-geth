@@ -1,7 +1,5 @@
 package com.reactnativegeth;
 
-import android.util.Log;
-
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
