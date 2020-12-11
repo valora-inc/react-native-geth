@@ -162,38 +162,6 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     /**
-     * Retrieves the peersInfo
-     *
-     * @param promise Promise
-     * @return return an array of maps with peer info
-     */
-    @ReactMethod
-    public void getPeerInfos(Promise promise) {
-        PeerInfos peerInfos = gethHolder.getNode().getPeerInfos();
-        long peersSize = peerInfos.size();
-
-        WritableArray result = new WritableNativeArray();
-        for (long i = 0; i < peersSize; i++) {
-            try {
-                PeerInfo peerInfo = peerInfos.get(i);
-
-                WritableMap peerMap = new WritableNativeMap();
-                peerMap.putString("id", peerInfo.getID());
-                peerMap.putString("name", peerInfo.getName());
-                peerMap.putString("caps", peerInfo.getCaps().toString());
-                peerMap.putString("enode", peerInfo.getEnode());
-                peerMap.putString("purposes", peerInfo.getPurposes());
-                peerMap.putString("localAddress", peerInfo.getLocalAddress());
-                peerMap.putString("remoteAddress", peerInfo.getRemoteAddress());
-                result.pushMap(peerMap);
-            } catch (Exception e) {
-                // The only possible error is to have an out of bound. Which will not happen
-                // because we are iterating using the size
-                promise.reject(PEERS_INFO_ERROR, e);
-            }
-        }
-    }
-    /**
      * Peer Infos
      * @return Return Info of every peer
      */
