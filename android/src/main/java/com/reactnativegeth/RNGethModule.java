@@ -676,8 +676,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putString("listenerAddress", nodeInfo.getListenerAddress());
         result.putString("name", nodeInfo.getName());
         result.putString("protocols", nodeInfo.getProtocols().toString());
-        result.putString("discoveryPort", nodeInfo.getDiscoveryPort().toString());
-        result.putString("listenerPort", nodeInfo.getListenerPort().toString());
+        result.putString("discoveryPort", String.valueOf(nodeInfo.getDiscoveryPort()));
+        result.putString("listenerPort", String.valueOf(nodeInfo.getListenerPort()));
         promise.resolve(result);
     }
 

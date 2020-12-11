@@ -109,4 +109,15 @@ export interface GethNativeModule {
    */
   getGethStats: () => Promise<Map<string, string>>,
 
+  /**
+   * Returns the node info
+   * @returns Map of <string, string> with node info
+   */
+  getNodeInfo: () => Promise<Map<string, string>>,
+  
+  /**
+   * Returns the connected peer's info 
+   * @returns Array of Maps that represent each peer info
+   */
+  getPeerInfos: () => Promise<Array<Map<string, string>>>,
 }

@@ -136,6 +136,94 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         }
     }
 
+    /**
+     * Node Info
+     * @return Return Node info
+     */
+    @objc(getNodeInfo:rejecter:)
+    func getNodeInfo(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result = [String: String]()
+            let nodeInfo = try runner.getNode().getNodeInfo()
+            result["enode"] = nodeInfo.getEnode()
+            result["id"] = nodeInfo.getID()
+            result["ip"] = nodeInfo.getIP()
+            result["listenerAddress"] = nodeInfo.getListenerAddress()
+            result["name"] = nodeInfo.getName()
+            result["protocols"] = nodeInfo.getProtocols().toString()
+            result["discoveryPort"] = String(nodeInfo.getDiscoveryPort())
+            result["listenerPort"] = String(nodeInfo.getListenerPort())
+
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Retrieves the peersInfo
+     *
+     * @param promise Promise
+     * @return return an array of maps with peer info
+     */
+    @ReactMethod
+    public void getPeerInfos(Promise promise) {
+        PeerInfos peerInfos = gethHolder.getNode().getPeerInfos();
+        long peersSize = peerInfos.size();
+
+        WritableArray result = new WritableNativeArray();
+        for (long i = 0; i < peersSize; i++) {
+            try {
+                PeerInfo peerInfo = peerInfos.get(i);
+
+                WritableMap peerMap = new WritableNativeMap();
+                peerMap.putString("id", peerInfo.getID());
+                peerMap.putString("name", peerInfo.getName());
+                peerMap.putString("caps", peerInfo.getCaps().toString());
+                peerMap.putString("enode", peerInfo.getEnode());
+                peerMap.putString("purposes", peerInfo.getPurposes());
+                peerMap.putString("localAddress", peerInfo.getLocalAddress());
+                peerMap.putString("remoteAddress", peerInfo.getRemoteAddress());
+                result.pushMap(peerMap);
+            } catch (Exception e) {
+                // The only possible error is to have an out of bound. Which will not happen
+                // because we are iterating using the size
+                promise.reject(PEERS_INFO_ERROR, e);
+            }
+        }
+    }
+    /**
+     * Peer Infos
+     * @return Return Info of every peer
+     */
+    @objc(getPeerInfos:rejecter:)
+    func getPeerInfos(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result = [[String: String]]()
+            let peerInfos = try runner.getNode().getPeerInfos()
+            let peersSize = peerInfos.size()
+
+            for i in 0..peersSize {
+                let peerInfo = peerInfos.get(i)
+
+                var peerMap = [String: String]()
+                peerMap["id"] = peerInfo.getID()
+                peerMap["name"] = peerInfo.getName()
+                peerMap["caps"] = peerInfo.getCaps().toString()
+                peerMap["enode"] = peerInfo.getEnode()
+                peerMap["purposes"] = peerInfo.getPurposes()
+                peerMap["localAddress"] = peerInfo.getLocalAddress()
+                peerMap["remoteAddress"] = peerInfo.getRemoteAddress()
+                result += peerMap
+            }
+
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
 
     /**
      * Unlock an account with a passphrase
