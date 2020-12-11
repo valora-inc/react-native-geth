@@ -103,6 +103,10 @@ export interface GethNativeModule {
    */
   listAccounts: () => Promise<string[]>,
 
-  getNodeInfo: () => Promise<Map<string, any>>,
-  getPeerInfos: () => Promise<Array<Map<string, any>>>,
+  /**
+   * Returns all stats collected by the geth mobile module
+   * @returns Map of <string, string> with all the metrics
+   */
+  getGethStats: () => Promise<Map<string, string>>,
+
 }

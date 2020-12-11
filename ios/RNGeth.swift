@@ -115,6 +115,29 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     /**
+     * Geth Stats
+     * @return Return Stats from geth
+     */
+    @objc(getGethStats:rejecter:)
+    func getGethStats(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result = [String: String]()
+            let stats = try runner.getNode().getGethStats()
+            let keys = stats.getStatsKeys()
+            for i in 0..<keys.size()  {
+                let key = keys.get(i)
+                result[key] = stats.getValue(key)
+            }
+
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+
+    /**
      * Unlock an account with a passphrase
      *
      * @param account String account to unlock
