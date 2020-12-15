@@ -106,12 +106,12 @@ export interface GethNativeModule {
    * @param publicKey - another user's public key in base64
    * @returns the shared secret
    */
-  computeSharedSecret: (account: string, publicKey: string) => Promise<Buffer>;
+  computeSharedSecret: (account: string, publicKey: string) => Promise<string>;
   /**
    * Decrypts an ECIES ciphertext
    * @param account - the address of the account
    * @param ciphertext - the cipher to be decrypted
    * @returns the decrypted text
    */
-  decrypt: (account: string, ciphertext: Buffer) => Promise<Buffer>;    
+  decrypt: (account: string, ciphertext: string) => Promise<string>;    
 }

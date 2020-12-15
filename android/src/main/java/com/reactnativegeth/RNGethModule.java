@@ -710,15 +710,17 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @param promise Promise
      * @return return the decrypted text
      */
-    // @ReactMethod
-    // public void decrypt(String address, Buffer cipher, Promise promise) {
-    //   try{
-    //     Account account = gethHolder.findAccount(address);
-    //     promise.resolve(gethHolder.getKeyStore().decrypt(account, cipher));
-    //   } catch (Exception e){
-    //     promise.reject(DECRYPT_ERROR, e);
-    //   }
+    @ReactMethod
+    public void decrypt(String address, String cipherBase64, Promise promise) {
+      try{
+        Account account = gethHolder.findAccount(address);
+        byte[] cipher = Base64.decode(cipherBase64, Base64.DEFAULT);
+        byte[] text = gethHolder.getKeyStore().decrypt(account, cipher);
+        promise.resolve(Base64.encodeToString(text, Base64.DEFAULT));
+      } catch (Exception e){
+        promise.reject(DECRYPT_ERROR, e);
+      }
         
-    // }
+    }
 }
 
