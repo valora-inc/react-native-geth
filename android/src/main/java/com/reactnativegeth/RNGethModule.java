@@ -682,7 +682,7 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * Computes an ECDH shared secret between the user's privayeahte key and another user's public key
+     * Computes an ECDH shared secret between the user's private key and another user's public key
      *
      * @param address the address of the user
      * @param publicKey another user's public key

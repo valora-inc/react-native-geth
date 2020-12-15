@@ -442,4 +442,52 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             reject(nil, nil, NSErr)
         }
     }
+
+    /**
+     * Computes an ECDH shared secret between the user's private key and another user's public key
+     *
+     * @param address the address of the user
+     * @param publicKey another user's public key
+     * @param promise Promise
+     * @return return a shared secret
+     */
+    @objc(computeSharedSecret:publicKeyBase64:resolver:rejecter:)
+    func computeSharedSecret(address: String, publicKeyBase64: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            let keyStore = try runner.getKeyStore()
+            let account = try runner.findAccount(rawAddress: address)
+            guard let publicKey = Data(base64Encoded: publicKeyBase64) else {
+                throw RuntimeError("Invalid base64 encoded public key")
+            }
+            let secret = try keyStore.computeECDHSharedSecret(account, publicKey: publicKey)
+            resolve([secret.base64EncodedString()] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Decrypts an ECIES ciphertext
+     *
+     * @param address the address of the user
+     * @param cipher the cipher to be decrypted
+     * @param promise Promise
+     * @return return the decrypted text
+     */
+    @objc(decrypt:cipherBase64:resolver:rejecter:)
+    func decrypt(address: String, cipherBase64: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            let keyStore = try runner.getKeyStore()
+            let account = try runner.findAccount(rawAddress: address)
+            guard let cipher = Data(base64Encoded: cipherBase64) else {
+                throw RuntimeError("Invalid base64 encoded ciphertext")
+            }
+            let text = try keyStore.decrypt(account, cipher: cipher)
+            resolve([text.base64EncodedString()] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
 }
