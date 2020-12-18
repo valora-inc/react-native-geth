@@ -38,9 +38,6 @@ import org.ethereum.geth.Transaction;
 import org.ethereum.geth.NodeInfo;
 import org.ethereum.geth.Strings;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-
 public class RNGethModule extends ReactContextBaseJavaModule {
 
     private static final String TAG = "RNGeth";
