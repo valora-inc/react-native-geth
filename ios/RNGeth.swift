@@ -143,17 +143,17 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     @objc(getNodeInfo:rejecter:)
     func getNodeInfo(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         do {
-            var result = [String: String]()
             let nodeInfo = try runner.getNode().getNodeInfo()
-            result["enode"] = nodeInfo.getEnode()
-            result["id"] = nodeInfo.getID()
-            result["ip"] = nodeInfo.getIP()
-            result["listenerAddress"] = nodeInfo.getListenerAddress()
-            result["name"] = nodeInfo.getName()
-            result["protocols"] = nodeInfo.getProtocols().toString()
-            result["discoveryPort"] = String(nodeInfo.getDiscoveryPort())
-            result["listenerPort"] = String(nodeInfo.getListenerPort())
-
+            let result: [String: String] = [
+                "enode": nodeInfo.getEnode(),
+                "id": nodeInfo.getID(),
+                "ip": nodeInfo.getIP(),
+                "listenerAddress": nodeInfo.getListenerAddress(),
+                "name": nodeInfo.getName(),
+                "protocols": nodeInfo.getProtocols().toString(),
+                "discoveryPort": String(nodeInfo.getDiscoveryPort()),
+                "listenerPort": String(nodeInfo.getListenerPort())
+            ]
             resolve([result] as NSObject)
         } catch let NSErr as NSError {
             NSLog("@", NSErr)
@@ -175,14 +175,15 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
             for i in 0..peersSize {
                 let peerInfo = peerInfos.get(i)
 
-                var peerMap = [String: String]()
-                peerMap["id"] = peerInfo.getID()
-                peerMap["name"] = peerInfo.getName()
-                peerMap["caps"] = peerInfo.getCaps().toString()
-                peerMap["enode"] = peerInfo.getEnode()
-                peerMap["purposes"] = peerInfo.getPurposes()
-                peerMap["localAddress"] = peerInfo.getLocalAddress()
-                peerMap["remoteAddress"] = peerInfo.getRemoteAddress()
+                let peerMap: [String: String] = [
+                    "id": peerInfo.getID(),
+                    "name": peerInfo.getName(),
+                    "caps": peerInfo.getCaps().toString(),
+                    "enode": peerInfo.getEnode(),
+                    "purposes": peerInfo.getPurposes(),
+                    "localAddress": peerInfo.getLocalAddress(),
+                    "remoteAddress": peerInfo.getRemoteAddress()
+                ]
                 result += peerMap
             }
 
