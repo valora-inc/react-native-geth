@@ -36,6 +36,9 @@ import org.ethereum.geth.NodeConfig;
 import org.ethereum.geth.SyncProgress;
 import org.ethereum.geth.Transaction;
 import org.ethereum.geth.NodeInfo;
+import org.ethereum.geth.Stats;
+import org.ethereum.geth.PeerInfo;
+import org.ethereum.geth.PeerInfos;
 import org.ethereum.geth.Strings;
 
 public class RNGethModule extends ReactContextBaseJavaModule {
@@ -63,6 +66,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     private static final String SIGN_TRANSACTION_PASSPHRASE_ERROR = "SIGN_TRANSACTION_PASSPHRASE_ERROR";
     private static final String SIGN_HASH_ERROR = "SIGN_HASH_ERROR";
     private static final String SIGN_HASH_PASSPHRASE_ERROR = "SIGN_HASH_PASSPHRASE_ERROR";
+    private static final String GETH_STATS_ERROR = "GETH_STATS_ERROR";
+    private static final String PEERS_INFO_ERROR = "PEERS_INFO_ERROR";
     private static final String ETH_DIR = ".ethereum";
     private static final String KEY_STORE_DIR = "keystore";
 
@@ -671,9 +676,66 @@ public class RNGethModule extends ReactContextBaseJavaModule {
         result.putString("listenerAddress", nodeInfo.getListenerAddress());
         result.putString("name", nodeInfo.getName());
         result.putString("protocols", nodeInfo.getProtocols().toString());
-        result.putDouble("discoveryPort", nodeInfo.getDiscoveryPort());
-        result.putDouble("listenerPort", nodeInfo.getListenerPort());
+        result.putString("discoveryPort", String.valueOf(nodeInfo.getDiscoveryPort()));
+        result.putString("listenerPort", String.valueOf(nodeInfo.getListenerPort()));
         promise.resolve(result);
     }
-}
 
+    /**
+     * Retrieves the peersInfo
+     *
+     * @param promise Promise
+     * @return return an array of maps with peer info
+     */
+    @ReactMethod
+    public void getPeerInfos(Promise promise) {
+        PeerInfos peerInfos = gethHolder.getNode().getPeerInfos();
+        long peersSize = peerInfos.size();
+
+        WritableArray result = new WritableNativeArray();
+        for (long i = 0; i < peersSize; i++) {
+            try {
+                PeerInfo peerInfo = peerInfos.get(i);
+
+                WritableMap peerMap = new WritableNativeMap();
+                peerMap.putString("id", peerInfo.getID());
+                peerMap.putString("name", peerInfo.getName());
+                peerMap.putString("caps", peerInfo.getCaps().toString());
+                peerMap.putString("enode", peerInfo.getEnode());
+                peerMap.putString("purposes", peerInfo.getPurposes());
+                peerMap.putString("localAddress", peerInfo.getLocalAddress());
+                peerMap.putString("remoteAddress", peerInfo.getRemoteAddress());
+                result.pushMap(peerMap);
+            } catch (Exception e) {
+                // The only possible error is to have an out of bound. Which will not happen
+                // because we are iterating using the size
+                promise.reject(PEERS_INFO_ERROR, e);
+            }
+        }
+
+        promise.resolve(result);
+    }
+
+    /**
+     * Retrieves the node Stats
+     *
+     * @param promise Promise
+     * @return return a map with node stats
+     */
+    @ReactMethod
+    public void getGethStats(Promise promise) {
+        try {            
+            WritableMap result = new WritableNativeMap();
+            Stats stats = gethHolder.getNode().getGethStats();
+            
+            Strings statKeys = stats.getStatsKeys();
+            for(int i = 0; i < statKeys.size(); i++) {
+                String key = statKeys.get(i);
+                result.putString(key, stats.getValue(key));
+            }
+            promise.resolve(result);
+        } catch (Exception e) {
+            promise.reject(GETH_STATS_ERROR, e);
+        }
+    }
+}

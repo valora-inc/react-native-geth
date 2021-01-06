@@ -14,4 +14,7 @@ RCT_EXTERN_METHOD(signTransactionPassphrase:(NSString*)txRLPBase64 signer: (NSSt
 RCT_EXTERN_METHOD(signTransaction:(NSString*)txRLPBase64 signer: (NSString*)signer resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(signHashPassphrase:(NSString*)hashBase64 signer: (NSString*)signer passphrase: (NSString*)passphrase resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(signHash:(NSString*)hashBase64 signer: (NSString*)signer resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getGethStats:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getNodeInfo:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getPeerInfos:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 @end
