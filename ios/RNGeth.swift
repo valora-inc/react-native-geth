@@ -115,6 +115,86 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     /**
+     * Geth Stats
+     * @return Return Stats from geth
+     */
+    @objc(getGethStats:rejecter:)
+    func getGethStats(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result = [String: String]()
+            let stats = try runner.getNode().getGethStats()
+            let keys = stats.getStatsKeys()
+            for i in 0..<keys.size()  {
+                let key = keys.get(i)
+                result[key] = stats.getValue(key)
+            }
+
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Node Info
+     * @return Return Node info
+     */
+    @objc(getNodeInfo:rejecter:)
+    func getNodeInfo(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            let nodeInfo = try runner.getNode().getNodeInfo()
+            let result: [String: String] = [
+                "enode": nodeInfo.getEnode(),
+                "id": nodeInfo.getID(),
+                "ip": nodeInfo.getIP(),
+                "listenerAddress": nodeInfo.getListenerAddress(),
+                "name": nodeInfo.getName(),
+                "protocols": nodeInfo.getProtocols().toString(),
+                "discoveryPort": String(nodeInfo.getDiscoveryPort()),
+                "listenerPort": String(nodeInfo.getListenerPort())
+            ]
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
+     * Peer Infos
+     * @return Return Info of every peer
+     */
+    @objc(getPeerInfos:rejecter:)
+    func getPeerInfos(resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            var result = [[String: String]]()
+            let peerInfos = try runner.getNode().getPeerInfos()
+            let peersSize = peerInfos.size()
+
+            for i in 0..peersSize {
+                let peerInfo = peerInfos.get(i)
+
+                let peerMap: [String: String] = [
+                    "id": peerInfo.getID(),
+                    "name": peerInfo.getName(),
+                    "caps": peerInfo.getCaps().toString(),
+                    "enode": peerInfo.getEnode(),
+                    "purposes": peerInfo.getPurposes(),
+                    "localAddress": peerInfo.getLocalAddress(),
+                    "remoteAddress": peerInfo.getRemoteAddress()
+                ]
+                result += peerMap
+            }
+
+            resolve([result] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
+    /**
      * Unlock an account with a passphrase
      *
      * @param account String account to unlock
