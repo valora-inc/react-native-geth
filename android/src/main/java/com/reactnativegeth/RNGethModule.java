@@ -41,9 +41,6 @@ import org.ethereum.geth.PeerInfo;
 import org.ethereum.geth.PeerInfos;
 import org.ethereum.geth.Strings;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-
 public class RNGethModule extends ReactContextBaseJavaModule {
 
     private static final String TAG = "RNGeth";
