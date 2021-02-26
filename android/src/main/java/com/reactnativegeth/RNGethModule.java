@@ -724,7 +724,6 @@ public class RNGethModule extends ReactContextBaseJavaModule {
       }
         
     }
-}
 
     /**
      * Retrieves the peersInfo
