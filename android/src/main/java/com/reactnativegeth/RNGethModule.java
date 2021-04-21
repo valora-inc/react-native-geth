@@ -400,9 +400,9 @@ public class RNGethModule extends ReactContextBaseJavaModule {
      * @return Return true if passphrase changed
      */
     @ReactMethod
-    public void updateAccount(String oldPassphrase, String newPassphrase, Promise promise) {
+    public void updateAccount(String address, String oldPassphrase, String newPassphrase, Promise promise) {
         try {
-            Account acc = gethHolder.getAccount();
+            Account account = gethHolder.findAccount(address);
             if (acc != null) {
                 gethHolder.getKeyStore().updateAccount(acc, oldPassphrase, newPassphrase);
                 promise.resolve(true);

@@ -8,6 +8,7 @@ RCT_EXTERN_METHOD(startNode:(RCTResponseSenderBlock)resolve rejecter:(RCTPromise
 RCT_EXTERN_METHOD(stopNode:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(subscribeNewHead:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(addAccount:(NSString*)privateKeyBase64 passphrase: (NSString*)passphrase resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(updateAccount:(NSString*)address oldPassphrase: (NSString*)oldPassphrase newPassphrase: (NSString*)newPassphrase resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(unlockAccount:(NSString*)account passphrase: (NSString*)passphrase timeout: (nonnull NSNumber*)timeout resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(listAccounts:(RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(signTransactionPassphrase:(NSString*)txRLPBase64 signer: (NSString*)signer passphrase: (NSString*)passphrase resolver: (RCTResponseSenderBlock)resolve rejecter:(RCTPromiseRejectBlock) reject)
