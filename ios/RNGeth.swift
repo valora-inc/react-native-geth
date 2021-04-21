@@ -239,6 +239,28 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
         }
     }
 
+    /**
+     * Update the passphrase of an account
+     *
+     * @param address The account to update
+     * @param oldPassphrase String the current passphrase.
+     * @param newPassphrase String the new passphrase to use.
+     * @param promise Promise
+     * @return whether the update was successful
+     */
+    @objc(updateAccount:oldPassphrase:newPassphrase:resolver:rejecter:)
+    func updateAccount(address: String, oldPassphrase: String, newPassphrase: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        do {
+            let keyStore = try runner.getKeyStore()
+            let account = try runner.findAccount(rawAddress: address)
+            let _ = try keyStore.update(account, passphrase: oldPassphrase, newPassphrase: newPassphrase)
+            resolve([true] as NSObject)
+        } catch let NSErr as NSError {
+            NSLog("@", NSErr)
+            reject(nil, nil, NSErr)
+        }
+    }
+
     func getHashSignature(hashBase64: String, signer: String, passphrase: String?) throws -> String {
         guard let hash = Data(base64Encoded: hashBase64) else {
             throw RuntimeError("Invalid base64 encoded hash")
