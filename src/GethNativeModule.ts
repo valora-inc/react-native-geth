@@ -88,7 +88,7 @@ export interface GethNativeModule {
    */
   addAccount: (privateKeyBase64: string, passphrase: string) => Promise<string>;
   /**
-   * Updates the passphrase of the default account
+   * Updates the passphrase of an account
    * @param address - the account to update
    * @param oldPassphrase - the passphrase currently associated with the account
    * @param newPassphrase - the new passphrase to use with the account
