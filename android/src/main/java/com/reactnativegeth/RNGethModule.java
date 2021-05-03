@@ -410,8 +410,8 @@ public class RNGethModule extends ReactContextBaseJavaModule {
     public void updateAccount(String address, String oldPassphrase, String newPassphrase, Promise promise) {
         try {
             Account account = gethHolder.findAccount(address);
-            if (acc != null) {
-                gethHolder.getKeyStore().updateAccount(acc, oldPassphrase, newPassphrase);
+            if (account != null) {
+                gethHolder.getKeyStore().updateAccount(account, oldPassphrase, newPassphrase);
                 promise.resolve(true);
             } else {
                 promise.reject(UPDATE_ACCOUNT_ERROR, "call method setAccount() before");
