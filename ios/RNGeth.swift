@@ -51,7 +51,7 @@ class RNGeth: RCTEventEmitter, GethNewHeadHandlerProtocol {
     }
 
     // Called when React Native is reloaded
-    @objc func invalidate() {
+    @objc override func invalidate() {
         do {
             try runner.node?.stop()
         } catch {
